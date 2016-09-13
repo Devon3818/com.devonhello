@@ -1,0 +1,22 @@
+{
+  "name": "com.devonhello",
+  "version": "1.0.0",
+  "description": "devonhello",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kongdewen1994/com.devonhello.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kongdewen1994/com.devonhello/issues"
+  },
+  "homepage": "https://github.com/kongdewen1994/com.devonhello#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}

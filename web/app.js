@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/home/index');
 var admin = require('./routes/admin/admin');
+var cfdk = require('./routes/cfdk/cfdk');
 
 var app = express();
 
@@ -27,8 +28,14 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);				//	前端
+
+app.use('/', routes);			//	前端
 app.use('/admin', admin);		//	后端
+app.use('/cfdk', cfdk);		//	厨房大咖
+
+app.use('/', routes);				//	前端页面
+app.use('/admin', admin);			//	后端登录
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -62,3 +69,6 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+
+//set DEBUG=web & npm start

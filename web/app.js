@@ -28,6 +28,7 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+<<<<<<< HEAD
 
 app.use('/', routes);			//	前端
 app.use('/admin', admin);		//	后端
@@ -36,6 +37,10 @@ app.use('/cfdk', cfdk);		//	厨房大咖
 app.use('/', routes);				//	前端页面
 app.use('/admin', admin);			//	后端登录
 
+=======
+app.use('/', routes);				//	前端页面
+app.use('/admin', admin);			//	后端登录
+>>>>>>> origin/master
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

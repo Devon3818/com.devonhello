@@ -139,7 +139,7 @@ router.get('/qus', function(req, res, next) {
 router.get('/tips', function(req, res, next) {
 
 	var test_obj = [{
-			"head": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
+			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
 			"name": "Marty McFly",
 			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
 			"comment": "24",
@@ -152,7 +152,7 @@ router.get('/tips', function(req, res, next) {
 				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
 			],
 		}, {
-			"head": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
+			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
 			"name": "Marty McFly",
 			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
 			"comment": "24",
@@ -165,7 +165,7 @@ router.get('/tips', function(req, res, next) {
 				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
 			],
 		}, {
-			"head": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
+			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
 			"name": "Marty McFly",
 			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
 			"comment": "24",
@@ -178,7 +178,7 @@ router.get('/tips', function(req, res, next) {
 				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
 			],
 		}, {
-			"head": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
+			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
 			"name": "Marty McFly",
 			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
 			"comment": "24",
@@ -191,7 +191,7 @@ router.get('/tips', function(req, res, next) {
 				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
 			],
 		}, {
-			"head": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
+			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
 			"name": "Marty McFly",
 			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
 			"comment": "24",

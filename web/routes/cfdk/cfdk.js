@@ -99,30 +99,35 @@ router.get('/', function(req, res, next) {
 router.get('/qus', function(req, res, next) {
 
 	var test_obj = [{
+			"qid": 1,
 			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
 			"name": "Finn",
 			"qus": "Listen, I've had a pretty messed up day...",
 			"comment": "24",
 			"time": "2016-10-03"
 		}, {
+			"qid": 2,
 			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
 			"name": "Finn",
 			"qus": "Listen, I've had a pretty messed up day...",
 			"comment": "24",
 			"time": "2016-10-03"
 		}, {
+			"qid": 3,
 			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
 			"name": "Finn",
 			"qus": "Listen, I've had a pretty messed up day...",
 			"comment": "24",
 			"time": "2016-10-03"
 		}, {
+			"qid": 4,
 			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
 			"name": "Finn",
 			"qus": "Listen, I've had a pretty messed up day...",
 			"comment": "24",
 			"time": "2016-10-03"
 		}, {
+			"qid": 5,
 			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
 			"name": "Finn",
 			"qus": "Listen, I've had a pretty messed up day...",
@@ -263,6 +268,89 @@ router.get('/works', function(req, res, next) {
 	];
 
 	res.send(JSON.stringify(test_obj));
+});
+
+//获取问题详情
+router.get('/qus_all/:id', function(req, res, next) {
+
+	var qid = req.params.id;
+
+	var test_obj = [{
+		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
+		"qus": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
+		"comment": "24",
+		"time": "2016-10-03",
+		"name": "Mary McFly",
+		"uid": "1",
+		"qid": qid,
+	}];
+
+	res.send(JSON.stringify(test_obj));
+});
+
+//获取问题详情评论
+router.get('/qus_pl/:id', function(req, res, next) {
+
+	var qid = req.params.id;
+
+	var test_obj = [{
+		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
+		"cont": "This town ain't big enough for the two of us!",
+		"time": "2016-10-03",
+		"name": "Woody",
+		"uid": "1",
+		"qid": qid,
+	}, {
+		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
+		"cont": "This town ain't big enough for the two of us!",
+		"time": "2016-10-03",
+		"name": "Woody",
+		"uid": "1",
+		"qid": qid,
+	}, {
+		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
+		"cont": "This town ain't big enough for the two of us!",
+		"time": "2016-10-03",
+		"name": "Woody",
+		"uid": "1",
+		"qid": qid,
+	}];
+
+	res.send(JSON.stringify(test_obj));
+});
+
+//发表提问
+router.post('/post_question', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('question', {
+				safe: true
+			}, function(err, collection) {
+
+				//插入数据
+				var data = {
+					uid: req.body.uid,
+					uhead: req.body.uhead,
+					uname: req.body.uname,
+					uquestion: req.body.uquestion,
+					ucomment: 0,
+					utime: req.body.utime,
+				}
+				
+				collection.insert(data, {
+					safe: true
+				}, function(err, result) {
+					res.send(result);
+				});
+
+			});
+		}
+	})
 });
 
 module.exports = router;

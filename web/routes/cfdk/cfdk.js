@@ -5,6 +5,65 @@ var mongodb = require('mongodb');
 var ObjectID = mongodb.ObjectID;
 var db = require('../../my_modules/db.doc');
 
+//注册
+router.post('/register', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uname": req.body.uname
+				}).toArray(function(err, docs) {
+					//console.log(docs);
+					//console.log(typeof req.params.id);
+					//console.log(docs.length);
+					if(docs.length) {
+						res.send("0");
+					} else {
+
+						db.collection('user', {
+							safe: true
+						}, function(err, collection) {
+
+							//插入数据
+							var data = {
+								uname: req.body.uname,
+								usex: req.body.usex,
+								upas: req.body.upas,
+								utime: Date.parse(new Date()),
+							}
+
+							collection.insert(data, {
+								safe: true
+							}, function(err, result) {
+								collection.find({
+									"uname": req.body.uname
+								}).toArray(function(err, docs) {
+									res.send(docs);
+								});
+							});
+
+						});
+
+					}
+
+				});
+
+			});
+
+		}
+	})
+
+});
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
@@ -341,7 +400,7 @@ router.post('/post_question', function(req, res, next) {
 					ucomment: 0,
 					utime: req.body.utime,
 				}
-				
+
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {

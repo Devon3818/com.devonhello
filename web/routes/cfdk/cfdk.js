@@ -25,7 +25,9 @@ router.post('/register', function(req, res, next) {
 					//console.log(docs);
 					//console.log(typeof req.params.id);
 					//console.log(docs.length);
+					
 					if(docs.length) {
+						db.close();
 						res.send("0");
 					} else {
 
@@ -47,6 +49,7 @@ router.post('/register', function(req, res, next) {
 								collection.find({
 									"uname": req.body.uname
 								}).toArray(function(err, docs) {
+									db.close();
 									res.send(docs);
 								});
 							});
@@ -56,13 +59,49 @@ router.post('/register', function(req, res, next) {
 					}
 
 				});
-
+				
 			});
 
 		}
 	})
 
 });
+
+//用户登录
+router.post('/login', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uname": req.body.uname,
+					"upas" : req.body.upas
+				}).toArray(function(err, docs) {
+					//console.log(docs);
+					//console.log(typeof req.params.id);
+					//console.log(docs.length);
+					db.close();
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+					
+				});
+				
+			});
+
+		}
+	})
+});
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {

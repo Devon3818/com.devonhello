@@ -261,6 +261,46 @@ router.post('/post_chart', function(req, res, next) {
 	})
 });
 
+//发表作品
+router.post('/post_work', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('work', {
+				safe: true
+			}, function(err, collection) {
+
+				//插入数据
+				var data = {
+					uid: req.body.uid,
+					uhead: req.body.uhead,
+					uname: req.body.uname,
+					utitle: req.body.utitle,
+					ubanner: req.body.ubanner,
+					ueat: req.body.ueat,
+					utext: req.body.utext,
+					uimg: req.body.uimg,
+					utip: req.body.utip,
+					ucomment: 0,
+					utime: Date.parse(new Date()),
+				}
+
+				collection.insert(data, {
+					safe: true
+				}, function(err, result) {
+					console.log(result);
+					res.send(result);
+				});
+
+			});
+		}
+	})
+});
+
 //===========================================================
 
 /* GET users listing. */

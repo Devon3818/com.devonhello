@@ -35,17 +35,19 @@ function uptoken(bucket, key) {
 filePath = 'http://www.whaleoffshore.com/templets/default/images/logo.png'
 
 //构造上传函数
-function uploadFile(uptoken, key, localFile) {
+function uploadFile(uptoken, key, localFile, res) {
   var extra = new qiniu.io.PutExtra();
     qiniu.io.putFile(uptoken, key, localFile, extra, function(err, ret) {
       if(!err) {
         // 上传成功， 处理返回值
-        console.log(ret.hash, ret.key, ret.persistentId);  
-        var rootFile = '../赚钱啦';//要删除的文件夹 url
+        //console.log(ret.hash, ret.key, ret.persistentId);
+        //emptyDir('public' + AVATAR_UPLOAD_FOLDER);
+        res.send(key);
 	    
       } else {
         // 上传失败， 处理返回代码
-        console.log(err);
+        //console.log(err);
+        res.send('3');
       }
   });
 }
@@ -217,9 +219,9 @@ router.post('/upload', function(req, res, next) {
 		//生成上传 Token
 		token = uptoken(bucket, avatarName);
 		//调用uploadFile上传
-		uploadFile(token, avatarName, newPath);
-		emptyDir('public' + AVATAR_UPLOAD_FOLDER);
-		res.send(avatarName);
+		uploadFile(token, avatarName, newPath, res);
+		
+		//res.send(avatarName);
 	});
 
 	

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var qiniu = require("qiniu");
+var rongcloudSDK = require( 'rongcloud-sdk' );
 
 var mongodb = require('mongodb');
 var ObjectID = mongodb.ObjectID;
@@ -14,6 +15,7 @@ var AVATAR_UPLOAD_FOLDER = '/upload/cfdk/';
 //需要填写你的 Access Key 和 Secret Key
 qiniu.conf.ACCESS_KEY = 'y77OZ1PgayCWMwh5lBtaUSwi27LFTXwp-69sg7TT';
 qiniu.conf.SECRET_KEY = 'Kt7uhWBp3EsLKN72QNiTcdJg4yj4kV4VdHghVA9i';
+
 
 //要上传的空间
 bucket = 'foodapp';

@@ -4,6 +4,49 @@ var mongodb = require('mongodb');
 var ObjectID = mongodb.ObjectID;
 var db = require('../../my_modules/db.doc');
 
+var qiniu = require("qiniu");
+
+//图片上传
+var formidable = require('formidable');
+var fs = require('fs');
+var AVATAR_UPLOAD_FOLDER = '/upload/cfdk/';
+
+
+//需要填写你的 Access Key 和 Secret Key
+qiniu.conf.ACCESS_KEY = 'y77OZ1PgayCWMwh5lBtaUSwi27LFTXwp-69sg7TT';
+qiniu.conf.SECRET_KEY = 'Kt7uhWBp3EsLKN72QNiTcdJg4yj4kV4VdHghVA9i';
+
+
+//要上传的空间
+bucket = 'foodapp';
+
+//构建上传策略函数
+function uptoken(bucket, key) {
+  var putPolicy = new qiniu.rs.PutPolicy(bucket+":"+key);
+  return putPolicy.token();
+}
+
+
+//构造上传函数
+function uploadFile(uptoken, key, localFile, res) {
+  var extra = new qiniu.io.PutExtra();
+    qiniu.io.putFile(uptoken, key, localFile, extra, function(err, ret) {
+      if(!err) {
+        // 上传成功， 处理返回值
+        //console.log(ret.hash, ret.key, ret.persistentId);
+        //emptyDir('public' + AVATAR_UPLOAD_FOLDER);
+        res.send(key);
+	    
+      } else {
+        // 上传失败， 处理返回代码
+        //console.log(err);
+        res.send('3');
+      }
+  });
+}
+
+
+
 /* GET users listing. */
 //后台登录页面
 router.get('/', function(req, res, next) {
@@ -12,6 +55,65 @@ router.get('/', function(req, res, next) {
 	//res.cookie('cfdkAdmin', '1', { maxAge: 900000, httpOnly: true })
 	//console.log(req.cookies.cfdkAdmin);
 	res.render('cfdkAdmin/admin');
+});
+
+//图片上传
+router.post('/uploadimg', function(req, res, next) {
+	
+	console.log(req.body.file);
+	
+	var form = new formidable.IncomingForm(); //创建上传表单
+	form.encoding = 'utf-8'; //设置编辑
+	form.uploadDir = 'public' + AVATAR_UPLOAD_FOLDER; //设置上传目录
+	form.keepExtensions = true; //保留后缀
+	form.maxFieldsSize = 2 * 1024 * 1024; //文件大小
+	form.parse(req, function(err, fields, files) {
+		//console.log(files.file);
+		if (err) {
+			res.locals.error = err;
+			res.send('0');
+			return;
+		}
+		
+		var extName = ''; //后缀名
+		switch (files.file.type) {
+			case 'image/pjpeg':
+				extName = 'jpg';
+				break;
+			case 'image/jpeg':
+				extName = 'jpg';
+				break;
+			case 'image/png':
+				extName = 'png';
+				break;
+			case 'image/x-png':
+				extName = 'png';
+				break;
+		}
+
+		if (extName.length == 0) {
+			res.locals.error = '只支持png和jpg格式图片';
+			res.send('1');
+			return;
+		}
+
+		var avatarName = Math.random() + '.' + extName;
+		var newPath = form.uploadDir + avatarName;
+		fs.renameSync(files.file.path, newPath); //重命名
+		//生成上传 Token
+		token = uptoken(bucket, avatarName);
+		//调用uploadFile上传
+		uploadFile(token, avatarName, newPath, res);
+	});
+
+	
+});
+
+
+//发布养生头条
+router.get('/sendart', function(req, res, next) {
+	
+	res.render('cfdkAdmin/sendART');
 });
 
 //后台用户列表页面

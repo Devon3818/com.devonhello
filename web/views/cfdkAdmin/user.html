@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html class='no-js' lang='en'>
+
+	<head>
+		<meta charset='utf-8'>
+		<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>
+		<title>Tables</title>
+		<meta content='lab2023' name='author'>
+		<meta content='' name='description'>
+		<meta content='' name='keywords'>
+		<link href="/stylesheets/cfdkAdmin/application-a07755f5.css" rel="stylesheet" type="text/css" />
+		<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+		<link href="/images/cfdkAdmin/favicon.ico" rel="icon" type="image/ico" />
+		<style>
+			#content {
+				left: 0;
+				margin-top: 0;
+			}
+			
+			#tools {
+				margin-left: 0;
+			}
+			
+			#dv_header {
+				margin-top: -8px;
+				padding: 0;
+				display: inline-block;
+				width: 40px;
+				height: 40px;
+				vertical-align: middle;
+			}
+			
+			.dv_table,
+			.dv_span {
+				display: none;
+			}
+			
+			.dv_block {
+				display: block;
+			}
+			
+			.dv_iblock {
+				display: inline-block;
+			}
+		</style>
+	</head>
+
+	<body class='main page'>
+		<!-- Navbar -->
+		<div class='navbar navbar-default' id='navbar'>
+			<a target="_blank" class='navbar-brand' href="JavaScript:;" onclick="openWin();">
+				<img id="dv_header" src="https://avatars0.githubusercontent.com/u/11835988?v=3&s=460" />
+				<%=data.uname%>
+			</a>
+			<ul class='nav navbar-nav pull-right'>
+				<li class='dropdown'>
+					<a class='dropdown-toggle' data-toggle='dropdown' href='javacript:;' onclick="alert(1)">
+						<i class='icon-envelope'></i> 作品
+						<span class='badge'><%=data.uwork%></span>
+					</a>
+				</li>
+				<li class='dropdown'>
+					<a class='dropdown-toggle' data-toggle='dropdown' href='javacript:;' onclick="alert(1)">
+						<i class='icon-envelope'></i> 提问
+						<span class='badge'><%=data.uqus%></span>
+					</a>
+				</li>
+				<li class='dropdown'>
+					<a class='dropdown-toggle' data-toggle='dropdown' href='javacript:;' onclick="alert(1)">
+						<i class='icon-envelope'></i> 分享
+						<span class='badge'><%=data.ushare%></span>
+					</a>
+				</li>
+				<li class='dropdown'>
+					<a class='dropdown-toggle' data-toggle='dropdown' href='javacript:;' onclick="alert(1)">
+						<i class='icon-envelope'></i> 举报
+						<span class='badge'>5</span>
+					</a>
+				</li>
+				<li class='dropdown'>
+					<a class='dropdown-toggle' data-toggle='dropdown' href='javacript:;' onclick="alert(1)">
+						<i class='icon-envelope'></i> 人气
+						<span class='badge'><%=data.uhot%></span>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id='wrapper'>
+
+			<!-- Tools -->
+			<section id='tools'>
+
+				<div id='toolbar'>
+					<div class='btn-group'>
+						<a class='btn' data-toggle='toolbar-tooltip' href='#' title='Building'>
+							<i class='icon-building'></i>
+						</a>
+						<a class='btn' data-toggle='toolbar-tooltip' href='#' title='Laptop'>
+							<i class='icon-laptop'></i>
+						</a>
+						<a class='btn' data-toggle='toolbar-tooltip' href='#' title='Calendar'>
+							<i class='icon-calendar'></i>
+							<span class='badge'>3</span>
+						</a>
+						<a class='btn' data-toggle='toolbar-tooltip' href='#' title='Lemon'>
+							<i class='icon-lemon'></i>
+						</a>
+					</div>
+				</div>
+			</section>
+			<!-- Content -->
+			<div id='content'>
+				<div class='panel panel-default grid'>
+					<div class='panel-heading'>
+						<i class='icon-table icon-large'></i><span class="dv_span dv_iblock">作品</span><span class="dv_span">提问</span><span class="dv_span">分享</span>
+						<div class='panel-tools'>
+							<div class='btn-group'>
+								<a class='btn dv_btn' href='#'>
+									<i class='icon-filter'></i> 作品
+								</a>
+								<a class='btn dv_btn' href='#'>
+									<i class='icon-filter'></i> 提问
+								</a>
+								<a class='btn dv_btn' href='#'>
+									<i class='icon-filter'></i> 分享
+								</a>
+								<a class='btn' data-toggle='toolbar-tooltip' href='#' title='Reload'>
+									<i class='icon-refresh'></i>
+								</a>
+							</div>
+
+						</div>
+					</div>
+					<div class="dv_table dv_block">
+						<table class='table'>
+							<thead>
+								<tr>
+									<th>排序</th>
+									<th>作品名</th>
+									<th>评论数</th>
+									<th>人气</th>
+									<th>收藏数</th>
+									<th>举报数</th>
+									<th>发布时间</th>
+									<th class='actions'>
+										Actions
+									</th>
+								</tr>
+							</thead>
+							<tbody id="dv_tbody1">
+
+							</tbody>
+						</table>
+					</div>
+
+					<div class="dv_table">
+						<table class='table'>
+							<thead>
+								<tr>
+									<th>排序</th>
+									<th>问题</th>
+									<th>回答数</th>
+									<th>收藏数</th>
+									<th>举报数</th>
+									<th>提问时间</th>
+									<th class='actions'>
+										Actions
+									</th>
+								</tr>
+							</thead>
+							<tbody id="dv_tbody2">
+								
+							</tbody>
+						</table>
+					</div>
+
+					<div class="dv_table">
+						<table class='table'>
+							<thead>
+								<tr>
+									<th>排序</th>
+									<th>图片数</th>
+									<th>评论数</th>
+									<th>收藏数</th>
+									<th>举报数</th>
+									<th>提问时间</th>
+									<th class='actions'>
+										Actions
+									</th>
+								</tr>
+							</thead>
+							<tbody id="dv_tbody3">
+								
+							</tbody>
+						</table>
+					</div>
+
+					<div class='panel-footer'>
+						<ul class='pagination pagination-sm'>
+							<li>
+								<a href='#'>«</a>
+							</li>
+							<li class='active'>
+								<a href='#'>1</a>
+							</li>
+							<li>
+								<a href='#'>2</a>
+							</li>
+							<li>
+								<a href='#'>3</a>
+							</li>
+							<li>
+								<a href='#'>4</a>
+							</li>
+							<li>
+								<a href='#'>5</a>
+							</li>
+							<li>
+								<a href='#'>6</a>
+							</li>
+							<li>
+								<a href='#'>7</a>
+							</li>
+							<li>
+								<a href='#'>8</a>
+							</li>
+							<li>
+								<a href='#'>»</a>
+							</li>
+						</ul>
+						<div class='pull-right'>
+							Showing 1 to 10 of 32 entries
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Footer -->
+		<!-- Javascripts -->
+		<script src="/javascripts/jquery-2.1.4.min.js"></script>
+
+		<script>
+			$(function() {
+
+				var olen1 = 0,
+					_id1 = 0,
+					html1 = "";
+				var olen2 = 0,
+					_id2 = 0,
+					html2 = "";
+				var olen3 = 0,
+					_id3 = 0,
+					html3 = "";
+
+				var tbody1 = $("#dv_tbody1"),
+					tbody2 = $("#dv_tbody2"),
+					tbody3 = $("#dv_tbody3");
+
+				toPost1(olen1);
+				
+
+				function toPost1(len) {
+
+					$.post("http://www.devonhello.com/cfdkAdmin/userwork", { num: len, uid: "<%=data._id%>" }, function(result) {
+						toPost2(olen2);
+						if(!result[0]["_id"]) {
+							return true;
+						}
+
+						var olength = result.length;
+
+						for(var i = 0; i < olength; i++) {
+
+							_id1++;
+							html1 += "<tr class='tr-"+_id1+"'>" +
+								"<td>" + _id1 + "</td>" +
+								"<td>" + result[i]["utitle"] + "</td>" +
+								"<td>" + result[i]["ucomment"] + "</td>" +
+								"<td>" + result[i]["uhot"] + "</td>" +
+								"<td>" + result[i]["collect"] + "</td>" +
+								"<td>" + result[i]["uno"] + "</td>" +
+								"<td>" + new Date(result[i]["utime"]).format('yyyy-MM-dd h:m') + "</td>" +
+								"<td class='action'>" +
+								"<a class='btn btn-success' data-toggle='tooltip' href='javascript:;' onclick='openWin(\"" + result[i]["_id"] + "\");' title='Zoom'>" +
+								"<i class='icon-zoom-in'></i>" +
+								"</a>&nbsp;" +
+								"<a class='btn btn-info' href='#'>" +
+								"<i class='icon-edit'></i>" +
+								"</a>&nbsp;" +
+								"<a class='btn btn-danger' href='javascript:;' onclick='dele(\""+result[i]["_id"]+"\","+ _id1 +")'>" +
+								"<i class='icon-trash'></i>" +
+								" </a>" +
+								"</td>" +
+								"</tr>";
+						}
+						tbody1.append(html1);
+						olen1 += olength;
+					})
+				}
+				
+				function toPost2(len) {
+
+					$.post("http://www.devonhello.com/cfdkAdmin/userquestion", { num: len, uid: "<%=data._id%>" }, function(result) {
+						toPost3(olen3);
+						if(!result[0]["_id"]) {
+							return true;
+						}
+
+						var olength = result.length;
+
+						for(var i = 0; i < olength; i++) {
+
+							_id2++;
+							html2 += "<tr class='qus-"+_id2+"'>" +
+								"<td>" + _id2 + "</td>" +
+								"<td>" + result[i]["utitle"] + "</td>" +
+								"<td>" + result[i]["ucomment"] + "</td>" +
+								"<td>" + result[i]["ufor"] + "</td>" +
+								"<td>" + result[i]["uno"] + "</td>" +
+								"<td>" + new Date(result[i]["utime"]).format('yyyy-MM-dd h:m') + "</td>" +
+								"<td class='action'>" +
+								"<a class='btn btn-success' data-toggle='tooltip' href='javascript:;' onclick='openWinqus(\"" + result[i]["_id"] + "\");' title='Zoom'>" +
+								"<i class='icon-zoom-in'></i>" +
+								"</a>&nbsp;" +
+								"<a class='btn btn-info' href='#'>" +
+								"<i class='icon-edit'></i>" +
+								"</a>&nbsp;" +
+								"<a class='btn btn-danger' href='javascript:;' onclick='delequs(\""+result[i]["_id"]+"\","+ _id2 +")'>" +
+								"<i class='icon-trash'></i>" +
+								" </a>" +
+								"</td>" +
+								"</tr>";
+						}
+						tbody2.append(html2);
+						olen2 += olength;
+					})
+				}
+				
+				function toPost3(len) {
+
+					$.post("http://www.devonhello.com/cfdkAdmin/userchart", { num: len, uid: "<%=data._id%>" }, function(result) {
+
+						if(!result[0]["_id"]) {
+							return true;
+						}
+
+						var olength = result.length;
+
+						for(var i = 0; i < olength; i++) {
+
+							_id3++;
+							html3 += "<tr class='ch-"+_id3+"'>" +
+								"<td>" + _id3 + "</td>" +
+								"<td>" + result[i]["uimg"].length + "</td>" +
+								"<td>" + result[i]["ucomment"] + "</td>" +
+								"<td>" + result[i]["ucollect"] + "</td>" +
+								"<td>" + result[i]["uno"] + "</td>" +
+								"<td>" + new Date(result[i]["utime"]).format('yyyy-MM-dd h:m') + "</td>" +
+								"<td class='action'>" +
+								"<a class='btn btn-success' data-toggle='tooltip' href='javascript:;' onclick='openWinch(\"" + result[i]["_id"] + "\");' title='Zoom'>" +
+								"<i class='icon-zoom-in'></i>" +
+								"</a>&nbsp;" +
+								"<a class='btn btn-info' href='#'>" +
+								"<i class='icon-edit'></i>" +
+								"</a>&nbsp;" +
+								"<a class='btn btn-danger' href='javascript:;' onclick='delech(\""+result[i]["_id"]+"\","+ _id3 +")'>" +
+								"<i class='icon-trash'></i>" +
+								" </a>" +
+								"</td>" +
+								"</tr>";
+						}
+						tbody3.append(html3);
+						olen3 += olength;
+					})
+				}
+
+				Date.prototype.format = function(format) {
+					var date = {
+						"M+": this.getMonth() + 1,
+						"d+": this.getDate(),
+						"h+": this.getHours(),
+						"m+": this.getMinutes(),
+						"s+": this.getSeconds(),
+						"q+": Math.floor((this.getMonth() + 3) / 3),
+						"S+": this.getMilliseconds()
+					};
+					if(/(y+)/i.test(format)) {
+						format = format.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length));
+					}
+					for(var k in date) {
+						if(new RegExp("(" + k + ")").test(format)) {
+							format = format.replace(RegExp.$1, RegExp.$1.length == 1 ?
+								date[k] : ("00" + date[k]).substr(("" + date[k]).length));
+						}
+					}
+					return format;
+				}
+
+				var nowIndex = 0,
+					table = $(".dv_table"),
+					span = $(".dv_span");
+
+				$(".dv_btn").each(function(index) {
+					$(this).click(function() {
+						if(nowIndex == index) {
+							return true;
+						}
+						table.eq(index).addClass("dv_block");
+						table.eq(nowIndex).removeClass("dv_block");
+						span.eq(index).addClass("dv_iblock");
+						span.eq(nowIndex).removeClass("dv_iblock");
+						nowIndex = index;
+					});
+				});
+
+			});
+			
+			function openWin(id){
+    				window.open ('/cfdkAdmin/userwork/'+id, 'newwindow', 'height=500; width=700;top=300;left=300')
+    			}
+			function openWinqus(id){
+    				window.open ('/cfdkAdmin/userwork/'+id, 'newwindow', 'height=500; width=700;top=300;left=300')
+    			}
+			function openWinch(id){
+    				window.open ('/cfdkAdmin/userwork/'+id, 'newwindow', 'height=500; width=700;top=300;left=300')
+    			}
+			
+			function dele(id,tr){
+				$.post("http://www.devonhello.com/cfdkAdmin/deleuserwork", { uid: id }, function(result) {
+					
+					if(result!=0){
+						$(".tr-"+tr).remove();
+					}
+				});
+			}
+			
+			function delequs(id,tr){
+				$.post("http://www.devonhello.com/cfdkAdmin/deleuserquestion", { uid: id }, function(result) {
+					
+					if(result!=0){
+						$(".qus-"+tr).remove();
+					}
+				});
+			}
+			
+			function delech(id,tr){
+				$.post("http://www.devonhello.com/cfdkAdmin/deleuserch", { uid: id }, function(result) {
+					
+					if(result!=0){
+						$(".ch-"+tr).remove();
+					}
+				});
+			}
+			
+		</script>
+
+	</body>
+
+</html>

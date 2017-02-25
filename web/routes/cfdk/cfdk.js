@@ -108,6 +108,12 @@ router.post('/register', function(req, res, next) {
 								uname: req.body.uname,
 								usex: req.body.usex,
 								upas: req.body.upas,
+								ufrom: req.body.ufrom,
+								uwork:0,
+								uqus:0,
+								ushare:0,
+								uhot:0,
+								uheader:'',
 								utime: Date.parse(new Date()),
 							}
 
@@ -248,8 +254,10 @@ router.post('/post_chart', function(req, res, next) {
 					uhead: req.body.uhead,
 					uname: req.body.uname,
 					utext: req.body.utext,
-					uimg: req.body.uimg,
+					uimg: JSON.parse(req.body.uimg),
 					ucomment: 0,
+					uno:0,
+					ucollect:0,
 					utime: Date.parse(new Date()),
 				}
 
@@ -285,11 +293,14 @@ router.post('/post_work', function(req, res, next) {
 					uname: req.body.uname,
 					utitle: req.body.utitle,
 					ubanner: req.body.ubanner,
-					ueat: req.body.ueat,
+					ueat: JSON.parse(req.body.ueat),
 					utext: req.body.utext,
-					uimg: req.body.uimg,
+					uimg: JSON.parse(req.body.uimg),
 					utip: req.body.utip,
 					ucomment: 0,
+					collect: 0,
+					uhot: 0,
+					uno: 0,
 					utime: Date.parse(new Date()),
 				}
 
@@ -642,6 +653,8 @@ router.post('/post_question', function(req, res, next) {
 					utitle: req.body.utitle,
 					uquestion: req.body.uquestion,
 					ucomment: 0,
+					ufor: 0,
+					uno: 0,
 					utime: Date.parse(new Date()),
 				}
 

@@ -316,72 +316,10 @@ router.post('/post_work', function(req, res, next) {
 	})
 });
 
-//===========================================================
-
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-
-	var test_obj = [{
-		"banner": ["http://www.devonhello.com/images/cfdk/card-amsterdam.png",
-			"http://www.devonhello.com/images/cfdk/card-madison.png",
-			"http://www.devonhello.com/images/cfdk/card-saopaolo.png",
-			"http://www.devonhello.com/images/cfdk/card-sf.png",
-		],
-		"art": [{
-			"img": "http://www.devonhello.com/images/cfdk/thumbnail-totoro.png",
-			"title": "title",
-			"cont": "contents..."
-		}, {
-			"img": "http://www.devonhello.com/images/cfdk/thumbnail-totoro.png",
-			"title": "title",
-			"cont": "contents..."
-		}, {
-			"img": "http://www.devonhello.com/images/cfdk/thumbnail-totoro.png",
-			"title": "title",
-			"cont": "contents..."
-		}, ],
-		"question": [{
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-woody.png",
-			"name": "Woody1",
-			"qus": "This town ain't big enough for the two of us!"
-		}, {
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-woody.png",
-			"name": "Woody1",
-			"qus": "This town ain't big enough for the two of us!"
-		}, {
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-woody.png",
-			"name": "Woody1",
-			"qus": "This town ain't big enough for the two of us!"
-		}, ],
-		"work": [{
-			"img": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"dec": "November 5, 1955",
-			"cont": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"ban": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			"like": "12",
-			"comment": "13",
-			"time": "3"
-		}, {
-			"img": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"dec": "November 5, 1955",
-			"cont": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"ban": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			"like": "12",
-			"comment": "13",
-			"time": "3"
-		}, {
-			"img": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"dec": "November 5, 1955",
-			"cont": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"ban": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			"like": "12",
-			"comment": "13",
-			"time": "3"
-		}, ],
-	}];
+//查看养生头条
+router.post('/article', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -394,242 +332,54 @@ router.get('/', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find().sort({
-					_id: -1
-				}).limit(20).toArray(function(err, docs) {
+				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
 					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
 
-					res.send(JSON.stringify(test_obj));
 				});
 
 			});
+
 		}
 	})
-
 });
 
-//获取分享数据
-router.get('/qus', function(req, res, next) {
+//获取养生头条列表
+router.post('/articlelist', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
 
-	var test_obj = [{
-			"qid": 1,
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-			"name": "Finn",
-			"qus": "Listen, I've had a pretty messed up day...",
-			"comment": "24",
-			"time": "2016-10-03"
-		}, {
-			"qid": 2,
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-			"name": "Finn",
-			"qus": "Listen, I've had a pretty messed up day...",
-			"comment": "24",
-			"time": "2016-10-03"
-		}, {
-			"qid": 3,
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-			"name": "Finn",
-			"qus": "Listen, I've had a pretty messed up day...",
-			"comment": "24",
-			"time": "2016-10-03"
-		}, {
-			"qid": 4,
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-			"name": "Finn",
-			"qus": "Listen, I've had a pretty messed up day...",
-			"comment": "24",
-			"time": "2016-10-03"
-		}, {
-			"qid": 5,
-			"img": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-			"name": "Finn",
-			"qus": "Listen, I've had a pretty messed up day...",
-			"comment": "24",
-			"time": "2016-10-03"
-		},
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
 
-	];
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
 
-	res.send(JSON.stringify(test_obj));
-});
+				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
 
-//获取分享数据
-router.get('/tips', function(req, res, next) {
+				});
 
-	var test_obj = [{
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"imgs": [
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			],
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"imgs": [
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			],
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"imgs": [
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			],
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"imgs": [
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			],
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"imgs": [
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-				"http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-			],
-		},
+			});
 
-	];
-
-	res.send(JSON.stringify(test_obj));
-});
-
-//获取分享数据
-router.get('/works', function(req, res, next) {
-
-	var test_obj = [{
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"dec": "November 5, 1955",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"img": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"dec": "November 5, 1955",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"img": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"dec": "November 5, 1955",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"img": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"dec": "November 5, 1955",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"img": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-		}, {
-			"head": "http://www.devonhello.com/images/cfdk/marty-avatar.png",
-			"dec": "November 5, 1955",
-			"name": "Marty McFly",
-			"say": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-			"comment": "24",
-			"like": "12",
-			"time": "2016-10-03",
-			"img": "http://www.devonhello.com/images/cfdk/advance-card-bttf.png",
-		},
-
-	];
-
-	res.send(JSON.stringify(test_obj));
-});
-
-//获取问题详情
-router.get('/qus_all/:id', function(req, res, next) {
-
-	var qid = req.params.id;
-
-	var test_obj = [{
-		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-		"qus": "Wait a minute. Wait a minute, Doc. Uhhh... Are you telling me that you built a time machine... out of a DeLorean?! Whoa. This is heavy.",
-		"comment": "24",
-		"time": "2016-10-03",
-		"name": "Mary McFly",
-		"uid": "1",
-		"qid": qid,
-	}];
-
-	res.send(JSON.stringify(test_obj));
-});
-
-//获取问题详情评论
-router.get('/qus_pl/:id', function(req, res, next) {
-
-	var qid = req.params.id;
-
-	var test_obj = [{
-		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-		"cont": "This town ain't big enough for the two of us!",
-		"time": "2016-10-03",
-		"name": "Woody",
-		"uid": "1",
-		"qid": qid,
-	}, {
-		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-		"cont": "This town ain't big enough for the two of us!",
-		"time": "2016-10-03",
-		"name": "Woody",
-		"uid": "1",
-		"qid": qid,
-	}, {
-		"head": "http://www.devonhello.com/images/cfdk/avatar-ts-barbie.png",
-		"cont": "This town ain't big enough for the two of us!",
-		"time": "2016-10-03",
-		"name": "Woody",
-		"uid": "1",
-		"qid": qid,
-	}];
-
-	res.send(JSON.stringify(test_obj));
+		}
+	})
 });
 
 //发表提问

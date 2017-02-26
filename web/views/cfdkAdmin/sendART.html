@@ -68,15 +68,19 @@
 
 						<div class='form-group'>
 							<label class='control-label'>标题</label>
-							<input class='form-control' placeholder='输入文章标题' type='text'>
+							<input class='form-control dv_title' placeholder='输入文章标题' type='text'>
 							<label class='control-label'>缩略图</label>
-							<input class='form-control' placeholder='上传图片' type='file'>
+							<input class='form-control dv_img' placeholder='上传图片' type='file'>
 						</div>
 					</div>
 
 					<div id="summernote">
 
 					</div>
+
+				</div>
+				<div class='form-actions'>
+					<button onclick="send();" class='btn btn-default' type='submit'>发布</button>
 
 				</div>
 			</div>
@@ -89,6 +93,7 @@
 			$(document).ready(function() {
 				$('#summernote').summernote({
 					height: 500,
+					placeholder: '文章内容...',
 					callbacks: {
 						onImageUpload: function(files) { //the onImageUpload API  
 							var imgs = sendFile(files[0]);
@@ -113,6 +118,40 @@
 					success: function(url) {
 
 						$("#summernote").summernote('insertImage', "http://7xp2ia.com1.z0.glb.clouddn.com/" + url, 'image name'); // the insertImage API  
+					}
+				});
+			}
+
+			//发布
+			function send() {
+				
+				alert($('.dv_img')[0].files[0]);
+				alert($('.dv_title').val());
+				alert($('#summernote').summernote('code'));
+				
+				var _data = new FormData();
+				_data.append("file", $('.dv_img')[0].files[0]);
+				_data.append("title", $('.dv_title').val());
+				_data.append("text", $('#summernote').summernote('code'));
+				
+				$.ajax({
+
+					data: _data,
+					dataType: 'text',
+					type: "POST",
+					url: "http://www.devonhello.com/cfdkAdmin/sendart",
+					cache: false,
+					contentType: false,
+					processData: false,
+					success: function(result) {
+						if(result !=0) {
+							alert("发布完成");
+							$('.dv_img').val('');
+							$('.dv_title').val('')
+							$('#summernote').summernote('reset');
+						} else {
+							alert("发布失败");
+						}
 					}
 				});
 			}

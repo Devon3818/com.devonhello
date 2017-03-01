@@ -12,13 +12,33 @@ var formidable = require('formidable');
 var fs = require('fs');
 var AVATAR_UPLOAD_FOLDER = '/upload/cfdk/';
 
+var sizeOf = require('image-size');
+
+
+//console.log(dimensions.width, dimensions.height);
+
 //需要填写你的 Access Key 和 Secret Key
 qiniu.conf.ACCESS_KEY = 'y77OZ1PgayCWMwh5lBtaUSwi27LFTXwp-69sg7TT';
 qiniu.conf.SECRET_KEY = 'Kt7uhWBp3EsLKN72QNiTcdJg4yj4kV4VdHghVA9i';
 
-
 //要上传的空间
 bucket = 'foodapp';
+
+//获取图片的宽度和高度
+function getImgHW(avatarName,newPath,res){
+	sizeOf('public' + AVATAR_UPLOAD_FOLDER+avatarName, function (err, dimensions) {
+		console.log(dimensions.width);
+		var imgdata = {};
+		imgdata["width"] = dimensions.width;
+		imgdata["height"] = dimensions.height;
+		token = uptoken(bucket, avatarName);
+		//调用uploadFile上传
+		uploadFile(token, avatarName, newPath, res, imgdata);
+		
+	});
+}
+
+
 
 //上传到七牛后保存的文件名
 //key = 'my-nodejs-logo.png';
@@ -37,14 +57,16 @@ function uptoken(bucket, key) {
 filePath = 'http://www.whaleoffshore.com/templets/default/images/logo.png'
 
 //构造上传函数
-function uploadFile(uptoken, key, localFile, res) {
+function uploadFile(uptoken, key, localFile, res, imgdata) {
   var extra = new qiniu.io.PutExtra();
     qiniu.io.putFile(uptoken, key, localFile, extra, function(err, ret) {
       if(!err) {
         // 上传成功， 处理返回值
         //console.log(ret.hash, ret.key, ret.persistentId);
         //emptyDir('public' + AVATAR_UPLOAD_FOLDER);
-        res.send(key);
+        imgdata["img"] = key;
+        console.log(imgdata);
+        res.send(imgdata);
 	    
       } else {
         // 上传失败， 处理返回代码
@@ -224,10 +246,13 @@ router.post('/upload', function(req, res, next) {
 //		console.log('url:'+newPath);
 //		console.log(files.file.path);
 		fs.renameSync(files.file.path, newPath); //重命名
+		
+		getImgHW(avatarName,newPath,res);
+		
 		//生成上传 Token
-		token = uptoken(bucket, avatarName);
+		//token = uptoken(bucket, avatarName);
 		//调用uploadFile上传
-		uploadFile(token, avatarName, newPath, res);
+		//uploadFile(token, avatarName, newPath, res);
 		
 		//res.send(avatarName);
 	});
@@ -237,6 +262,7 @@ router.post('/upload', function(req, res, next) {
 
 //发表心情
 router.post('/post_chart', function(req, res, next) {
+	
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -247,7 +273,7 @@ router.post('/post_chart', function(req, res, next) {
 			db.collection('chart', {
 				safe: true
 			}, function(err, collection) {
-
+				
 				//插入数据
 				var data = {
 					uid: req.body.uid,
@@ -292,7 +318,7 @@ router.post('/post_work', function(req, res, next) {
 					uhead: req.body.uhead,
 					uname: req.body.uname,
 					utitle: req.body.utitle,
-					ubanner: req.body.ubanner,
+					ubanner:JSON.parse(req.body.ubanner),
 					ueat: JSON.parse(req.body.ueat),
 					utext: req.body.utext,
 					uimg: JSON.parse(req.body.uimg),
@@ -369,6 +395,206 @@ router.post('/articlelist', function(req, res, next) {
 					db.close();
 					console.log(docs);
 					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取作品列表
+router.post('/workdata', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('work', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					console.log(docs);
+					if(docs) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取问答列表
+router.post('/quedata', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('question', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					console.log(docs);
+					if(docs) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//查看问答
+router.post('/seequedata', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('question', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//查看问答
+router.post('/seeworkdata', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('work', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//查看分享
+router.post('/seechartdata', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+
+
+//获取分享列表
+router.post('/chartdata', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					console.log(docs);
+					if(docs) {
 						res.send(docs);
 					} else {
 						res.send("0");

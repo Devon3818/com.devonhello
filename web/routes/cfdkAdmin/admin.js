@@ -91,6 +91,44 @@ function uploadFile2(uptoken, key, localFile, res, fields) {
 	});
 }
 
+
+//用户登录
+router.post('/applogins', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uname": req.body.uname,
+					"upas": req.body.upas
+				}).toArray(function(err, docs) {
+					//console.log(docs);
+					//console.log(typeof req.params.id);
+					//console.log(docs.length);
+					db.close();
+					if(docs.length) {
+						console.log(docs.length);
+						res.send(docs);
+						console.log("send");
+					} else {
+						res.send("0");
+					}
+					
+				});
+
+			});
+
+		}
+	})
+});
+
 /* GET users listing. */
 //后台登录页面
 router.get('/', function(req, res, next) {

@@ -2,53 +2,72 @@ var express = require('express');
 var router = express.Router();
 var qiniu = require("qiniu");
 var rongcloudSDK = require('rongcloud-sdk');
-rongcloudSDK.init( 'sfci50a7c59yi', '7yPJfy1ssm' );
+rongcloudSDK.init('sfci50a7c59yi', '7yPJfy1ssm');
+
+var eventEmitter = require('events'),
+	emitter = new eventEmitter();
+emitter.setMaxListeners(0);
 
 //容云发送信息格式测试
-textMessageObject = {"content":"hello","extra":"helloExtra"};
+textMessageObject = { "content": "hello", "extra": "helloExtra" };
 
-function rongSendMessage(){
+function rongSendMessage() {
 	//发送人id，接受人id，发送信息类型，发送的内容
-	rongcloudSDK.message.publish("11", "58ad9be21246a1442151bd91", 'RC:TxtMsg', JSON.stringify( textMessageObject ), function( err, resultText ){
-		console.log(resultText);  //200为成功
+	rongcloudSDK.message.publish("11", "58ad9be21246a1442151bd91", 'RC:TxtMsg', JSON.stringify(textMessageObject), function(err, resultText) {
+		console.log(resultText); //200为成功
 	});
 }
-
 
 var JPush = require("jpush-sdk");
 var client = JPush.buildClient('520865321813385a601043b3', '2ed0ebd2b677de91f12e57fa');
 
 
 
-//推送评论
-function sendcommentJP(name,Audience,_id){
-	console.log(name);
-	console.log(Audience);
-	console.log(_id);
-	
-	client.push().setPlatform('ios', 'android')
-    .setAudience(JPush.alias(Audience))
-    .setNotification('Hi, JPush', JPush.ios(name,'',1,null, {'_id':_id}), JPush.android(name, null, 1, {'_id':_id}))
-    .setMessage('msg content')
-    .send(function(err, res) {
-        if (err) {
-            if (err instanceof JPush.APIConnectionError) {
-                console.log(err.message);
-                //Response Timeout means your request to the server may have already received, please check whether or not to push
-                console.log(err.isResponseTimeout);
-            } else if (err instanceof  JPush.APIRequestError) {
-                console.log(err.message);
-            }
-        } else {
-            console.log('Sendno: ' + res.sendno);
-            console.log('Msg_id: ' + res.msg_id);
-        }
-    });
+function removecoll(name){
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection(name, {
+				safe: true
+			}, function(err, collection) {
+
+				collection.remove({});
+
+			});
+
+		}
+	})
 }
 
 
+//推送评论
+function sendcommentJP(name, Audience, _id) {
+	console.log(name);
+	console.log(Audience);
+	console.log(_id);
 
-
+	client.push().setPlatform('ios', 'android')
+		.setAudience(JPush.alias(Audience))
+		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id }), JPush.android(name, null, 1, { '_id': _id }))
+		.setMessage('msg content')
+		.send(function(err, res) {
+			if(err) {
+				if(err instanceof JPush.APIConnectionError) {
+					//console.log(err.message);
+					//Response Timeout means your request to the server may have already received, please check whether or not to push
+					//console.log(err.isResponseTimeout);
+				} else if(err instanceof JPush.APIRequestError) {
+					//console.log(err.message);
+				}
+			} else {
+				//console.log('Sendno: ' + res.sendno);
+				//console.log('Msg_id: ' + res.msg_id);
+			}
+		});
+}
 
 var mongodb = require('mongodb');
 var ObjectID = mongodb.ObjectID;
@@ -61,8 +80,84 @@ var AVATAR_UPLOAD_FOLDER = '/upload/cfdk/';
 
 var sizeOf = require('image-size');
 
+//插入函数
+function insert(req, res, next, coll, data) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection(coll, {
+				safe: true
+			}, function(err, collection) {
+
+				collection.insert(data, {
+					safe: true
+				}, function(err, result) {
+					//console.log(result);
+					res.send(result);
+					db.close();
+				});
+
+			});
+		}
+	})
+}
+
 //初始化app  home主页数据
 router.get('/indexbanner', function(req, res, next) {
+
+	var data = {
+		banner: [],
+		user: [],
+		ad: [],
+		hotart: [],
+		work: []
+	}
+
+	insert(req, res, next, 'home', data);
+
+});
+
+
+//home获取养生头条列表
+router.post('/indexarticlelist', function(req, res, next) {
+	//console.log(req.body.num);
+	
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 5 }).sort({ usee: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//home获取人气作品列表
+router.post('/indexworklist', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -71,27 +166,23 @@ router.get('/indexbanner', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('home', {
+			db.collection('work', {
 				safe: true
 			}, function(err, collection) {
 
-				//插入数据
-				var data = {
-					banner: [],
-					user: [],
-					ad: [],
-					hotart: [],
-					work: []
-				}
+				collection.find({}, { limit: 10, skip: len }).sort({ uhot: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
 
-				collection.insert(data, {
-					safe: true
-				}, function(err, result) {
-					//console.log(result);
-					res.send(result);
 				});
 
 			});
+
 		}
 	})
 });
@@ -108,7 +199,7 @@ bucket = 'foodapp';
 //获取图片的宽度和高度
 function getImgHW(avatarName, newPath, res) {
 	sizeOf('public' + AVATAR_UPLOAD_FOLDER + avatarName, function(err, dimensions) {
-		console.log(dimensions.width);
+		//console.log(dimensions.width);
 		var imgdata = {};
 		imgdata["width"] = dimensions.width;
 		imgdata["height"] = dimensions.height;
@@ -142,7 +233,7 @@ function uploadFile(uptoken, key, localFile, res, imgdata) {
 			//console.log(ret.hash, ret.key, ret.persistentId);
 			//emptyDir('public' + AVATAR_UPLOAD_FOLDER);
 			imgdata["img"] = key;
-			console.log(imgdata);
+			//console.log(imgdata);
 			res.send(imgdata);
 
 		} else {
@@ -165,7 +256,7 @@ var emptyDir = function(fileUrl) {
 			emptyDir(fileUrl + '/' + file);
 		} else {
 			fs.unlinkSync(fileUrl + '/' + file);
-			console.log("删除文件" + fileUrl + '/' + file + "成功");
+			//console.log("删除文件" + fileUrl + '/' + file + "成功");
 		}
 	});
 }
@@ -220,9 +311,11 @@ router.post('/register', function(req, res, next) {
 								collection.find({
 									"uname": req.body.uname
 								}).toArray(function(err, docs) {
-									db.close();
+
 									res.send(docs);
+									db.close();
 								});
+
 							});
 
 						});
@@ -239,7 +332,8 @@ router.post('/register', function(req, res, next) {
 });
 
 //用户登录
-router.post('/logins', function(req, res, next) {
+router.post('/applogins', function(req, res, next) {
+	//console.log(typeof req.params.id);
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -260,13 +354,14 @@ router.post('/logins', function(req, res, next) {
 					//console.log(docs.length);
 					db.close();
 					if(docs.length) {
-						console.log(docs.length);
+						//console.log(docs);
 						res.send(docs);
-						console.log("send");
+
 					} else {
+
 						res.send("0");
 					}
-					
+
 				});
 
 			});
@@ -335,6 +430,8 @@ router.post('/upload', function(req, res, next) {
 
 });
 
+//removecoll("comment_chart");
+
 //评论问答
 router.post('/comment_chart', function(req, res, next) {
 
@@ -351,28 +448,67 @@ router.post('/comment_chart', function(req, res, next) {
 
 				//插入数据
 				var data = {
-					uid: req.body.uid,
-					uhead: req.body.uhead,
-					uname: req.body.uname,
-					utext: req.body.utext,
-					type: req.body.utype,
+					uid: req.body.uid,			//评论人id
+					uhead: req.body.uhead,		//评论人头像
+					uname: req.body.uname,		//评论人昵称
+					utext: req.body.utext,		//评论人内容
+					type: req.body.type,
 					uno: 0,
+					fid: req.body.fid,			//作者id
+					fhead: req.body.fhead,		//作者头像
+					fname: req.body.fname,		//作者昵称
+					ftext: req.body.ftext,		//作者文章题目／内容
 					utime: Date.parse(new Date()),
-					utitle:req.body.utitle,
-					uartid:req.body.uartid,
-					utid: req.body.utid,
-					nid: req.body.nid,
+					uartid: req.body.uartid,		//文章id
+					utid: req.body.utid,		//接受人id
+					nid: req.body.nid,		//评论他人评论的评论的_id
 				}
 
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {
-					console.log(result['ops'][0]["_id"]);
-					sendcommentJP(req.body.uname+':评论了你', req.body.utid, result['ops'][0]["_id"]);
+					console.log("提交评论："+JSON.stringify(result));
+					sendcommentJP(req.body.uname + ':评论了你', req.body.utid, result['ops'][0]["_id"]);
 					res.send(result);
 				});
 
 			});
+		}
+	})
+});
+
+//获取评论会话列表
+router.post('/comment_chart_list', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id,
+		type = req.body.type,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment_chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uid": id, "utid": id, "nid": {$ne: 0}, "type": type }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(id);
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
 		}
 	})
 });
@@ -394,7 +530,7 @@ router.post('/see_comment_chart', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uartid": id,"type": type }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({ "uartid": id, "type": type }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(id);
 					//console.log(docs);
@@ -442,7 +578,7 @@ router.post('/post_chart', function(req, res, next) {
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {
-					console.log(result);
+					//console.log(result);
 					res.send(result);
 				});
 
@@ -485,7 +621,7 @@ router.post('/post_work', function(req, res, next) {
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {
-					console.log(result);
+					//console.log(result);
 					res.send(result);
 				});
 
@@ -743,7 +879,7 @@ router.post('/chartdata', function(req, res, next) {
 
 				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
-					console.log(docs);
+					//console.log(docs);
 					if(docs) {
 						res.send(docs);
 					} else {
@@ -787,7 +923,7 @@ router.post('/post_question', function(req, res, next) {
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {
-					console.log(result);
+					//console.log(result);
 					res.send(result);
 				});
 

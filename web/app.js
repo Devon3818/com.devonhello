@@ -23,7 +23,9 @@ var api = express();
 var secret = express();
 
 
-
+var eventEmitter=require('events'),
+    emitter=new eventEmitter();
+emitter.setMaxListeners(0);
 
 var bodyParser = require('body-parser')
 app.use(bodyParser.json());

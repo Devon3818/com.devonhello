@@ -18,6 +18,11 @@ qiniu.conf.SECRET_KEY = 'Kt7uhWBp3EsLKN72QNiTcdJg4yj4kV4VdHghVA9i';
 //要上传的空间
 bucket = 'foodapp';
 
+
+var eventEmitter=require('events'),
+    emitter=new eventEmitter();
+emitter.setMaxListeners(0);
+
 //构建上传策略函数
 function uptoken(bucket, key) {
 	var putPolicy = new qiniu.rs.PutPolicy(bucket + ":" + key);

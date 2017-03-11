@@ -6,7 +6,9 @@ rongcloudSDK.init('sfci50a7c59yi', '7yPJfy1ssm');
 
 var eventEmitter = require('events'),
 	emitter = new eventEmitter();
-emitter.setMaxListeners(0);
+emitter.setMaxListeners(100);
+
+//console.log(emitter);
 
 //容云发送信息格式测试
 textMessageObject = { "content": "hello", "extra": "helloExtra" };
@@ -44,14 +46,14 @@ function removecoll(name){
 
 
 //推送评论
-function sendcommentJP(name, Audience, _id) {
-	console.log(name);
-	console.log(Audience);
-	console.log(_id);
+function sendcommentJP(name, Audience, _id, artid, type) {
+	//console.log(name);
+	//console.log(Audience);
+	//console.log(_id);
 
 	client.push().setPlatform('ios', 'android')
 		.setAudience(JPush.alias(Audience))
-		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id }), JPush.android(name, null, 1, { '_id': _id }))
+		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id,'artid':artid,'type':type }), JPush.android(name, null, 1, { '_id': _id,'artid':artid,'type':type }))
 		.setMessage('msg content')
 		.send(function(err, res) {
 			if(err) {
@@ -467,8 +469,8 @@ router.post('/comment_chart', function(req, res, next) {
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {
-					console.log("提交评论："+JSON.stringify(result));
-					sendcommentJP(req.body.uname + ':评论了你', req.body.utid, result['ops'][0]["_id"]);
+					//console.log("提交评论："+JSON.stringify(result));
+					sendcommentJP(req.body.uname + ':评论了你', req.body.utid, result['ops'][0]["_id"],result['ops'][0]["uartid"],result['ops'][0]["type"]);
 					res.send(result);
 				});
 
@@ -495,7 +497,7 @@ router.post('/comment_chart_list', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id, "utid": id, "nid": {$ne: 0}, "type": type }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({ "uid": id, "utid": id, "nid": {$ne: 0}, "type": type }, { limit: 10, skip: len }).toArray(function(err, docs) {
 					db.close();
 					//console.log(id);
 					//console.log(docs);
@@ -812,6 +814,219 @@ router.post('/seeworkdata', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取我的作品
+router.post('/getmywork', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.uid,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('work', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uid": id }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取我的作品极光推送评论
+router.post('/getmywork_jpush', function(req, res, next) {
+	//console.log(req.body.num);
+	var uid = req.body.uid,
+		artid = req.body.artid,
+		id = req.body.id,
+		type = req.body.type,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment_chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "type": type, "uartid": artid, $or: [{"uid": uid},{"fid": uid}] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取我的分享极光推送评论
+router.post('/getmychart_jpush', function(req, res, next) {
+	//console.log(req.body.artid);
+	var uid = req.body.uid,
+		artid = req.body.artid,
+		id = req.body.id,
+		type = req.body.type,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment_chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "type": type, "uartid": artid, $or: [{"uid": uid},{"fid": uid}] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取我的问答极光推送评论
+router.post('/getmyque_jpush', function(req, res, next) {
+	//console.log(req.body.num);
+	var uid = req.body.uid,
+		artid = req.body.artid,
+		id = req.body.id,
+		type = req.body.type,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment_chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "type": type, "uartid": artid, $or: [{"uid": uid},{"fid": uid}] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取我的分享
+router.post('/getmychart', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.uid,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uid": id }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//获取我的提问
+router.post('/getmyquestion', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.uid,
+		len = req.body.len*1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('question', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uid": id }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {

@@ -4,14 +4,94 @@ var qiniu = require("qiniu");
 var rongcloudSDK = require('rongcloud-sdk');
 rongcloudSDK.init('sfci50a7c59yi', '7yPJfy1ssm');
 
-var eventEmitter = require('events'),
-	emitter = new eventEmitter();
-emitter.setMaxListeners(100);
+require('events').EventEmitter.defaultMaxListeners = Infinity;
 
-//console.log(emitter);
+//console.log(express().setMaxListeners);
 
 //容云发送信息格式测试
 textMessageObject = { "content": "hello", "extra": "helloExtra" };
+
+//更新评论数量
+function updatacom(coll,id){
+	var colls;
+	switch (coll){
+		case '1':
+			colls = "question";
+			break;
+		case '2':
+			colls = "work";
+			break;
+		case '3':
+			colls = "chart";
+			break;	
+		default:
+			break;
+	}
+	console.log(colls);
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+		} else {
+
+			db.collection(colls, {
+				safe: true
+			}, function(err, collection) {
+				
+				collection.update({"_id": ObjectID(id)},{"$inc":{"ucomment":1}}, {
+					safe: true
+				}, function(err, result) {
+					console.log("评论条数更新成功");
+					db.close();
+				});
+
+			});
+		}
+	})
+
+}
+
+
+
+//更新用户积分／声望
+function updatacuser(coll,id){
+	var colls;
+	switch (coll){
+		case '1':
+			colls = "uqus";
+			break;
+		case '2':
+			colls = "uwork";
+			break;
+		case '3':
+			colls = "ushare";
+			break;	
+		default:
+			break;
+	}
+	console.log(colls);
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+		} else {
+
+			db.collection("user", {
+				safe: true
+			}, function(err, collection) {
+				
+				collection.update({"_id": ObjectID(id)},{"$inc":{colls:1,"uhot":5}}, {
+					safe: true
+				}, function(err, result) {
+					console.log("用户更新成功");
+					db.close();
+				});
+
+			});
+		}
+	})
+
+}
 
 function rongSendMessage() {
 	//发送人id，接受人id，发送信息类型，发送的内容
@@ -123,6 +203,37 @@ router.get('/indexbanner', function(req, res, next) {
 
 });
 
+//home获取人气推荐列表
+router.post('/indexuserlist', function(req, res, next) {
+	//console.log(req.body.num);
+	
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 8 }).sort({ uhot: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
 
 //home获取养生头条列表
 router.post('/indexarticlelist', function(req, res, next) {
@@ -140,6 +251,73 @@ router.post('/indexarticlelist', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({}, { limit: 5 }).sort({ usee: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//用户声望／热度排名
+router.post('/usersort', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 20, skip: len }).sort({ uhot: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//菜谱搜索
+router.post('/search', function(req, res, next) {
+	//console.log(req.body.name);
+	var name = req.body.name,
+		len = req.body.len * 1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('work', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({utitle:{$regex:name,$options:"$i"}}, { limit: 30, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -472,6 +650,9 @@ router.post('/comment_chart', function(req, res, next) {
 					//console.log("提交评论："+JSON.stringify(result));
 					sendcommentJP(req.body.uname + ':评论了你', req.body.utid, result['ops'][0]["_id"],result['ops'][0]["uartid"],result['ops'][0]["type"]);
 					res.send(result);
+					var coll = result['ops'][0]["type"],
+						aid = result['ops'][0]["uartid"];
+					updatacom(coll,aid);
 				});
 
 			});
@@ -581,6 +762,8 @@ router.post('/post_chart', function(req, res, next) {
 					safe: true
 				}, function(err, result) {
 					//console.log(result);
+					db.close();
+					updatacuser('3',req.body.uid);
 					res.send(result);
 				});
 
@@ -624,6 +807,8 @@ router.post('/post_work', function(req, res, next) {
 					safe: true
 				}, function(err, result) {
 					//console.log(result);
+					db.close();
+					updatacuser('2',req.body.uid);
 					res.send(result);
 				});
 
@@ -649,6 +834,39 @@ router.post('/article', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+
+//获取热门养生头条列表
+router.post('/hotarticlelist', function(req, res, next) {
+	//console.log(req.body.num);
+	var len = req.body.len * 1;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, { limit: 20, skip: len }).sort({ usee: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1139,6 +1357,8 @@ router.post('/post_question', function(req, res, next) {
 					safe: true
 				}, function(err, result) {
 					//console.log(result);
+					db.close();
+					updatacuser('1',req.body.uid);
 					res.send(result);
 				});
 

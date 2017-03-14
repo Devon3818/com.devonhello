@@ -14,8 +14,10 @@ var ESHOP = require('./routes/Eshop/index');
 var cfdk = require('./routes/cfdk/cfdk');
 var cfdkAdmin = require('./routes/cfdkAdmin/admin');
 
+require('events').EventEmitter.defaultMaxListeners = Infinity;
 
 var app = express();
+app.setMaxListeners(100);
 
 var admin = express(); // the sub app
 var api = express();
@@ -103,9 +105,10 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.setMaxListeners(100);
 
 
+//console.log(app.setMaxListeners);
+//console.log(app.setMaxListeners(100));
 
 
 module.exports = app;

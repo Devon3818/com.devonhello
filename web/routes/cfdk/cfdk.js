@@ -12,9 +12,9 @@ require('events').EventEmitter.defaultMaxListeners = Infinity;
 textMessageObject = { "content": "hello", "extra": "helloExtra" };
 
 //更新评论数量
-function updatacom(coll,id){
+function updatacom(coll, id) {
 	var colls;
-	switch (coll){
+	switch(coll) {
 		case '1':
 			colls = "question";
 			break;
@@ -23,7 +23,7 @@ function updatacom(coll,id){
 			break;
 		case '3':
 			colls = "chart";
-			break;	
+			break;
 		default:
 			break;
 	}
@@ -37,8 +37,8 @@ function updatacom(coll,id){
 			db.collection(colls, {
 				safe: true
 			}, function(err, collection) {
-				
-				collection.update({"_id": ObjectID(id)},{"$inc":{"ucomment":1}}, {
+
+				collection.update({ "_id": ObjectID(id) }, { "$inc": { "ucomment": 1 } }, {
 					safe: true
 				}, function(err, result) {
 					console.log("评论条数更新成功");
@@ -51,12 +51,10 @@ function updatacom(coll,id){
 
 }
 
-
-
 //更新用户积分／声望
-function updatacuser(coll,id){
+function updatacuser(coll, id) {
 	var colls;
-	switch (coll){
+	switch(coll) {
 		case '1':
 			colls = "uqus";
 			break;
@@ -65,7 +63,7 @@ function updatacuser(coll,id){
 			break;
 		case '3':
 			colls = "ushare";
-			break;	
+			break;
 		default:
 			break;
 	}
@@ -79,8 +77,8 @@ function updatacuser(coll,id){
 			db.collection("user", {
 				safe: true
 			}, function(err, collection) {
-				
-				collection.update({"_id": ObjectID(id)},{"$inc":{colls:1,"uhot":5}}, {
+
+				collection.update({ "_id": ObjectID(id) }, { "$inc": { colls: 1, "uhot": 5 } }, {
 					safe: true
 				}, function(err, result) {
 					console.log("用户更新成功");
@@ -93,6 +91,35 @@ function updatacuser(coll,id){
 
 }
 
+//举报
+router.post('/jubao', function(req, res, next) {
+	//console.log(req.body.num);
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+		} else {
+
+			db.collection(req.body.coll, {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({ "_id": ObjectID(req.body.id) }, { "$inc": { uno: 1 } }, {
+					safe: true
+				}, function(err, result) {
+					console.log("举报成功");
+					res.send(result);
+					db.close();
+				});
+
+			});
+		}
+	})
+
+});
+
+
+
 function rongSendMessage() {
 	//发送人id，接受人id，发送信息类型，发送的内容
 	rongcloudSDK.message.publish("11", "58ad9be21246a1442151bd91", 'RC:TxtMsg', JSON.stringify(textMessageObject), function(err, resultText) {
@@ -103,9 +130,7 @@ function rongSendMessage() {
 var JPush = require("jpush-sdk");
 var client = JPush.buildClient('520865321813385a601043b3', '2ed0ebd2b677de91f12e57fa');
 
-
-
-function removecoll(name){
+function removecoll(name) {
 	db.open(function(error, client) {
 		if(error) {
 			db.close();
@@ -124,7 +149,6 @@ function removecoll(name){
 	})
 }
 
-
 //推送评论
 function sendcommentJP(name, Audience, _id, artid, type) {
 	//console.log(name);
@@ -133,7 +157,7 @@ function sendcommentJP(name, Audience, _id, artid, type) {
 
 	client.push().setPlatform('ios', 'android')
 		.setAudience(JPush.alias(Audience))
-		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id,'artid':artid,'type':type }), JPush.android(name, null, 1, { '_id': _id,'artid':artid,'type':type }))
+		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id, 'artid': artid, 'type': type }), JPush.android(name, null, 1, { '_id': _id, 'artid': artid, 'type': type }))
 		.setMessage('msg content')
 		.send(function(err, res) {
 			if(err) {
@@ -206,7 +230,7 @@ router.get('/indexbanner', function(req, res, next) {
 //home获取人气推荐列表
 router.post('/indexuserlist', function(req, res, next) {
 	//console.log(req.body.num);
-	
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -238,7 +262,7 @@ router.post('/indexuserlist', function(req, res, next) {
 //home获取养生头条列表
 router.post('/indexarticlelist', function(req, res, next) {
 	//console.log(req.body.num);
-	
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -283,7 +307,7 @@ router.post('/usersort', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 20, skip: len }).sort({ uhot: -1 }).toArray(function(err, docs) {
+				collection.find({}, { limit: 10, skip: len }).sort({ uhot: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -317,7 +341,7 @@ router.post('/search', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({utitle:{$regex:name,$options:"$i"}}, { limit: 30, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({ utitle: { $regex: name, $options: "$i" } }, { limit: 30, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -481,7 +505,8 @@ router.post('/register', function(req, res, next) {
 								uqus: 0,
 								ushare: 0,
 								uhot: 0,
-								uheader: '',
+								uheader: req.body.uheader,
+								qqtoken: req.body.qqtoken,
 								utime: Date.parse(new Date()),
 							}
 
@@ -528,6 +553,44 @@ router.post('/applogins', function(req, res, next) {
 				collection.find({
 					"uname": req.body.uname,
 					"upas": req.body.upas
+				}).toArray(function(err, docs) {
+					//console.log(docs);
+					//console.log(typeof req.params.id);
+					//console.log(docs.length);
+					db.close();
+					if(docs.length) {
+						//console.log(docs);
+						res.send(docs);
+
+					} else {
+
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//qq检测，用户是否已经注册过
+router.post('/qqapplogins', function(req, res, next) {
+	//console.log(typeof req.params.id);
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"qqtoken": req.body.qqtoken,
 				}).toArray(function(err, docs) {
 					//console.log(docs);
 					//console.log(typeof req.params.id);
@@ -628,31 +691,31 @@ router.post('/comment_chart', function(req, res, next) {
 
 				//插入数据
 				var data = {
-					uid: req.body.uid,			//评论人id
-					uhead: req.body.uhead,		//评论人头像
-					uname: req.body.uname,		//评论人昵称
-					utext: req.body.utext,		//评论人内容
+					uid: req.body.uid, //评论人id
+					uhead: req.body.uhead, //评论人头像
+					uname: req.body.uname, //评论人昵称
+					utext: req.body.utext, //评论人内容
 					type: req.body.type,
 					uno: 0,
-					fid: req.body.fid,			//作者id
-					fhead: req.body.fhead,		//作者头像
-					fname: req.body.fname,		//作者昵称
-					ftext: req.body.ftext,		//作者文章题目／内容
+					fid: req.body.fid, //作者id
+					fhead: req.body.fhead, //作者头像
+					fname: req.body.fname, //作者昵称
+					ftext: req.body.ftext, //作者文章题目／内容
 					utime: Date.parse(new Date()),
-					uartid: req.body.uartid,		//文章id
-					utid: req.body.utid,		//接受人id
-					nid: req.body.nid,		//评论他人评论的评论的_id
+					uartid: req.body.uartid, //文章id
+					utid: req.body.utid, //接受人id
+					nid: req.body.nid, //评论他人评论的评论的_id
 				}
 
 				collection.insert(data, {
 					safe: true
 				}, function(err, result) {
 					//console.log("提交评论："+JSON.stringify(result));
-					sendcommentJP(req.body.uname + ':评论了你', req.body.utid, result['ops'][0]["_id"],result['ops'][0]["uartid"],result['ops'][0]["type"]);
+					sendcommentJP(req.body.uname + ':评论了你', req.body.utid, result['ops'][0]["_id"], result['ops'][0]["uartid"], result['ops'][0]["type"]);
 					res.send(result);
 					var coll = result['ops'][0]["type"],
 						aid = result['ops'][0]["uartid"];
-					updatacom(coll,aid);
+					updatacom(coll, aid);
 				});
 
 			});
@@ -665,7 +728,7 @@ router.post('/comment_chart_list', function(req, res, next) {
 	//console.log(req.body.num);
 	var id = req.body.id,
 		type = req.body.type,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -678,7 +741,7 @@ router.post('/comment_chart_list', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id, "utid": id, "nid": {$ne: 0}, "type": type }, { limit: 10, skip: len }).toArray(function(err, docs) {
+				collection.find({ "uid": id, "utid": id, "nid": { $ne: 0 }, "type": type }, { limit: 10, skip: len }).toArray(function(err, docs) {
 					db.close();
 					//console.log(id);
 					//console.log(docs);
@@ -763,7 +826,7 @@ router.post('/post_chart', function(req, res, next) {
 				}, function(err, result) {
 					//console.log(result);
 					db.close();
-					updatacuser('3',req.body.uid);
+					updatacuser('3', req.body.uid);
 					res.send(result);
 				});
 
@@ -808,7 +871,7 @@ router.post('/post_work', function(req, res, next) {
 				}, function(err, result) {
 					//console.log(result);
 					db.close();
-					updatacuser('2',req.body.uid);
+					updatacuser('2', req.body.uid);
 					res.send(result);
 				});
 
@@ -850,6 +913,38 @@ router.post('/article', function(req, res, next) {
 	})
 });
 
+//返回用户信息
+router.post('/getuserdata', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
 
 //获取热门养生头条列表
 router.post('/hotarticlelist', function(req, res, next) {
@@ -866,7 +961,7 @@ router.post('/hotarticlelist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 20, skip: len }).sort({ usee: -1 }).toArray(function(err, docs) {
+				collection.find({}, { limit: 6, skip: len }).sort({ usee: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -899,7 +994,7 @@ router.post('/articlelist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({}, { limit: 6, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1052,7 +1147,7 @@ router.post('/seeworkdata', function(req, res, next) {
 router.post('/getmywork', function(req, res, next) {
 	//console.log(req.body.num);
 	var id = req.body.uid,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1089,7 +1184,7 @@ router.post('/getmywork_jpush', function(req, res, next) {
 		artid = req.body.artid,
 		id = req.body.id,
 		type = req.body.type,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1102,7 +1197,7 @@ router.post('/getmywork_jpush', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "type": type, "uartid": artid, $or: [{"uid": uid},{"fid": uid}] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({ "type": type, "uartid": artid, $or: [{ "uid": uid }, { "fid": uid }] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1126,7 +1221,7 @@ router.post('/getmychart_jpush', function(req, res, next) {
 		artid = req.body.artid,
 		id = req.body.id,
 		type = req.body.type,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1139,7 +1234,7 @@ router.post('/getmychart_jpush', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "type": type, "uartid": artid, $or: [{"uid": uid},{"fid": uid}] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({ "type": type, "uartid": artid, $or: [{ "uid": uid }, { "fid": uid }] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1163,7 +1258,7 @@ router.post('/getmyque_jpush', function(req, res, next) {
 		artid = req.body.artid,
 		id = req.body.id,
 		type = req.body.type,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1176,7 +1271,7 @@ router.post('/getmyque_jpush', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "type": type, "uartid": artid, $or: [{"uid": uid},{"fid": uid}] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({ "type": type, "uartid": artid, $or: [{ "uid": uid }, { "fid": uid }] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1197,7 +1292,7 @@ router.post('/getmyque_jpush', function(req, res, next) {
 router.post('/getmychart', function(req, res, next) {
 	//console.log(req.body.num);
 	var id = req.body.uid,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1231,7 +1326,7 @@ router.post('/getmychart', function(req, res, next) {
 router.post('/getmyquestion', function(req, res, next) {
 	//console.log(req.body.num);
 	var id = req.body.uid,
-		len = req.body.len*1;
+		len = req.body.len * 1;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1358,11 +1453,80 @@ router.post('/post_question', function(req, res, next) {
 				}, function(err, result) {
 					//console.log(result);
 					db.close();
-					updatacuser('1',req.body.uid);
+					updatacuser('1', req.body.uid);
 					res.send(result);
 				});
 
 			});
+		}
+	})
+});
+
+//收藏
+router.post('/tocollect', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('colltion', {
+				safe: true
+			}, function(err, collection) {
+
+				//插入数据
+				var data = {
+					uid: req.body.uid,
+					uartid: req.body.uartid,
+					utitle: req.body.utitle,
+					utime: Date.parse(new Date()),
+				}
+
+				collection.insert(data, {
+					safe: true
+				}, function(err, result) {
+					//console.log(result);
+					db.close();
+
+					res.send(result);
+				});
+
+			});
+		}
+	})
+});
+
+//判断是否已经收藏
+router.post('/iscollect', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id,
+		uid = req.body.uid;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('colltion', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uartid": id, "uid": uid }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
 		}
 	})
 });

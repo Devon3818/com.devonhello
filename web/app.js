@@ -12,6 +12,7 @@ var API = require('./routes/API/index');
 var ADMIN = require('./routes/Admin/index');
 var ESHOP = require('./routes/Eshop/index');
 var cfdk = require('./routes/cfdk/cfdk');
+var chihu = require('./routes/chihu/chihu');
 var cfdkAdmin = require('./routes/cfdkAdmin/admin');
 
 require('events').EventEmitter.defaultMaxListeners = Infinity;
@@ -28,6 +29,41 @@ var secret = express();
 var eventEmitter=require('events'),
     emitter=new eventEmitter();
 emitter.setMaxListeners(0);
+
+
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var port = 3000;
+
+var ids = false;
+
+
+
+//socket连接
+//io.on( "connection", function( socket ){
+//  console.log( "一个新连接" ); 
+//  console.log(socket.socket);
+//  //console.log(socket.to);
+//  //socket.emit('news', { hello: 'world' });
+//  
+//	socket.on('my other event', function (data) {
+//  		var id = data.id+'';
+//  		//console.log(socket);
+//  		//socket.to(id).emit('news', { hello: 'world' });
+//  		sends(id,socket);
+//  		
+//});
+//});
+
+function sends(id,socket){
+	
+	io.to(id).emit('newsd', { hello: "接受者："+id });
+}
+
+//http.listen(port,function(){
+//  console.log('正在监听3000端口');
+//});
+
 
 var bodyParser = require('body-parser')
 app.use(bodyParser.json());
@@ -59,6 +95,7 @@ app.use('/users', users);
 app.use('/admin',ADMIN);
 app.use('/eshop',ESHOP);
 app.use('/cfdk', cfdk);   //  厨房大咖
+app.use('/chihu', chihu);   //  吃乎
 app.use('/cfdkAdmin', cfdkAdmin);   //  厨房大咖后台
 
 // catch 404 and forward to error handler

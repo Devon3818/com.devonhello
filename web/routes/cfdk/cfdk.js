@@ -11,6 +11,10 @@ require('events').EventEmitter.defaultMaxListeners = Infinity;
 //容云发送信息格式测试
 textMessageObject = { "content": "hello", "extra": "helloExtra" };
 
+var mongodb = require('mongodb');
+var ObjectID = mongodb.ObjectID;
+var db = require('../../my_modules/db.doc');
+
 //更新评论数量
 function updatacom(coll, id) {
 	var colls;
@@ -54,15 +58,19 @@ function updatacom(coll, id) {
 //更新用户积分／声望
 function updatacuser(coll, id) {
 	var colls;
+	var opt;
 	switch(coll) {
 		case '1':
 			colls = "uqus";
+			opt = { "uqus": 1, "uhot": 5 };
 			break;
 		case '2':
 			colls = "uwork";
+			opt = { "uwork": 1, "uhot": 5 };
 			break;
 		case '3':
 			colls = "ushare";
+			opt = { "ushare": 1, "uhot": 5 };
 			break;
 		default:
 			break;
@@ -78,7 +86,7 @@ function updatacuser(coll, id) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.update({ "_id": ObjectID(id) }, { "$inc": { colls: 1, "uhot": 5 } }, {
+				collection.update({ "_id": ObjectID(id) }, { "$inc": opt }, {
 					safe: true
 				}, function(err, result) {
 					console.log("用户更新成功");
@@ -90,6 +98,32 @@ function updatacuser(coll, id) {
 	})
 
 }
+
+//更新用户资料
+router.post('/alertuser', function(req, res, next) {
+	
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+		} else {
+
+			db.collection("user", {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({ "_id": ObjectID(req.body.id) }, {$set:{ "uname": req.body.name, "usex": req.body.sex, "uheader" :req.body.header }}, {
+					safe: true
+				}, function(err, result) {
+					console.log("用户资料更新成功");
+					db.close();
+				});
+
+			});
+		}
+	});
+	
+});
 
 //举报
 router.post('/jubao', function(req, res, next) {
@@ -118,7 +152,33 @@ router.post('/jubao', function(req, res, next) {
 
 });
 
+//举报评论
+router.post('/jubaopl', function(req, res, next) {
+	//console.log(req.body.num);
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+		} else {
 
+			db.collection("comment_chart", {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({ "_id": ObjectID(req.body.id) }, { "$inc": { uno: 1 } }, {
+					safe: true
+				}, function(err, result) {
+					console.log("举报评论成功");
+					
+					res.send(result);
+					db.close();
+				});
+
+			});
+		}
+	})
+
+});
 
 function rongSendMessage() {
 	//发送人id，接受人id，发送信息类型，发送的内容
@@ -128,7 +188,7 @@ function rongSendMessage() {
 }
 
 var JPush = require("jpush-sdk");
-var client = JPush.buildClient('520865321813385a601043b3', '2ed0ebd2b677de91f12e57fa');
+var client = JPush.buildClient('520865321813385a601043b3', '7782c6294d585d16dadfd662');
 
 function removecoll(name) {
 	db.open(function(error, client) {
@@ -149,35 +209,35 @@ function removecoll(name) {
 	})
 }
 
+
+
 //推送评论
-function sendcommentJP(name, Audience, _id, artid, type) {
+function sendcommentJP(name, maudience, _id, artid, type) {
 	//console.log(name);
-	//console.log(Audience);
+	console.log(maudience);
 	//console.log(_id);
 
 	client.push().setPlatform('ios', 'android')
-		.setAudience(JPush.alias(Audience))
+		.setAudience(JPush.alias(maudience))
 		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id, 'artid': artid, 'type': type }), JPush.android(name, null, 1, { '_id': _id, 'artid': artid, 'type': type }))
 		.setMessage('msg content')
 		.send(function(err, res) {
 			if(err) {
 				if(err instanceof JPush.APIConnectionError) {
-					//console.log(err.message);
+					console.log("APIConnectionError:"+err.message);
 					//Response Timeout means your request to the server may have already received, please check whether or not to push
 					//console.log(err.isResponseTimeout);
 				} else if(err instanceof JPush.APIRequestError) {
-					//console.log(err.message);
+					console.log(err.message);
 				}
 			} else {
 				//console.log('Sendno: ' + res.sendno);
-				//console.log('Msg_id: ' + res.msg_id);
+				console.log('Msg_id: ' + res.msg_id);
 			}
 		});
 }
 
-var mongodb = require('mongodb');
-var ObjectID = mongodb.ObjectID;
-var db = require('../../my_modules/db.doc');
+
 
 //图片上传
 var formidable = require('formidable');
@@ -719,6 +779,41 @@ router.post('/comment_chart', function(req, res, next) {
 				});
 
 			});
+		}
+	})
+});
+
+//获取我的全部评论
+router.post('/my_comment_list', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id,
+		len = req.body.len * 1;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment_chart', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "utid": id, "nid": "0" }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+					db.close();
+					//console.log(id);
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
 		}
 	})
 });
@@ -1422,6 +1517,42 @@ router.post('/chartdata', function(req, res, next) {
 	})
 });
 
+//删除用户发表
+router.post('/dele', function(req, res, next) {
+	//console.log(req.body.num);
+	var coll = req.body.coll,
+		id = req.body.id,
+		uid = req.body.uid;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection(coll, {
+				safe: true
+			}, function(err, collection) {
+
+				collection.remove({ "_id": ObjectID(id),"uid": uid }, function(err, result) {
+					db.close();
+					if(!err){
+						//console.log(result)
+						res.send(result);
+					}else{
+						//console.log(err)
+						res.send("0");
+					}
+				});
+
+
+			});
+
+		}
+	})
+});
+
 //发表提问
 router.post('/post_question', function(req, res, next) {
 	//打开数据表
@@ -1464,6 +1595,7 @@ router.post('/post_question', function(req, res, next) {
 
 //收藏
 router.post('/tocollect', function(req, res, next) {
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -1475,33 +1607,44 @@ router.post('/tocollect', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				//插入数据
-				var data = {
-					uid: req.body.uid,
-					uartid: req.body.uartid,
-					utitle: req.body.utitle,
-					utime: Date.parse(new Date()),
-				}
+				collection.find({ "uartid": req.body.uartid, "uid": req.body.uid }).toArray(function(err, docs) {
 
-				collection.insert(data, {
-					safe: true
-				}, function(err, result) {
-					//console.log(result);
-					db.close();
+					if(docs.length) {
+						db.close();
+						console.log("已经收藏过了");
+						res.send(docs);
+					} else {
+						//插入数据
+						var data = {
+							uid: req.body.uid,
+							uartid: req.body.uartid,
+							utitle: req.body.utitle,
+							utime: Date.parse(new Date()),
+						}
 
-					res.send(result);
+						collection.insert(data, {
+							safe: true
+						}, function(err, result) {
+							//console.log(result);
+							db.close();
+
+							res.send(result);
+						});
+					}
+
 				});
 
 			});
+
 		}
 	})
+
 });
 
-//判断是否已经收藏
-router.post('/iscollect', function(req, res, next) {
+//我的收藏
+router.post('/mytocollect', function(req, res, next) {
 	//console.log(req.body.num);
-	var id = req.body.id,
-		uid = req.body.uid;
+	var id = req.body.id;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -1514,7 +1657,7 @@ router.post('/iscollect', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uartid": id, "uid": uid }).toArray(function(err, docs) {
+				collection.find({ "uid": id }).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1529,6 +1672,95 @@ router.post('/iscollect', function(req, res, next) {
 
 		}
 	})
+});
+
+
+
+//关注
+router.post('/fork', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('fork', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uid": req.body.uid, "fid": req.body.fid }).toArray(function(err, docs) {
+
+					if(docs.length) {
+						db.close();
+						//console.log("已经关注过了");
+						res.send(docs);
+					} else {
+						//插入数据
+						var data = {
+							uid: req.body.uid,
+							fid: req.body.fid,
+							fname: req.body.fname,
+							fhead: req.body.fhead,
+						}
+
+						collection.insert(data, {
+							safe: true
+						}, function(err, result) {
+							//console.log(result);
+							db.close();
+
+							res.send(result);
+						});
+					}
+
+				});
+
+			});
+
+		}
+	})
+
+});
+
+//我的关注
+router.post('/myfork', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('fork', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({ "uid": id }).toArray(function(err, docs) {
+					db.close();
+					//console.log(docs);
+					if(docs.length) {
+						res.send(docs);
+					} else {
+						res.send("0");
+					}
+
+				});
+
+			});
+
+		}
+	})
+});
+
+//App版本
+router.get('/appversion', function(req, res, next) {
+	
+	res.send("0.0.6");
 });
 
 module.exports = router;

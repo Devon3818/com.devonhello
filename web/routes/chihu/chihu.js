@@ -516,4 +516,78 @@ router.post('/login', function(req, res, next) {
 	})
 });
 
+//注册
+router.post('/register', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"name": req.body.name
+				}).toArray(function(err, docs) {
+
+					if(docs.length) {
+						db.close();
+						res.send("0");
+					} else {
+
+						db.collection('user', {
+							safe: true
+						}, function(err, collection) {
+
+							//插入数据
+							var data = {
+								name: req.body.name,
+								userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
+								forkqus: '0',
+								forkuser: '0',
+								fork: '0',
+								dec: '吃乎，开启美食之旅...',
+								work: '0',
+								share: '0',
+								sex: '0',
+								city: '',
+								job: '',
+								integral: '0',
+								title: '吃乎学者',
+								report: '0',
+								form: 'register',
+								time: Date.parse(new Date()),
+								pass: req.body.pass
+							}
+
+							collection.insert(data, {
+								safe: true
+							}, function(err, result) {
+								collection.find({
+									"name": req.body.name
+								}).toArray(function(err, docs) {
+
+									res.send(docs);
+									db.close();
+								});
+
+							});
+
+						});
+
+					}
+
+				});
+
+			});
+
+		}
+	})
+
+});
+
 module.exports = router;

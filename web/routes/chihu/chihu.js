@@ -3,6 +3,33 @@ var router = express.Router();
 var mongodb = require('mongodb');
 var ObjectID = mongodb.ObjectID;
 var db = require('../../my_modules/db.doc.chihu');
+var JPush = require("jpush-sdk");
+var client = JPush.buildClient('634af50eb57e7339d2dc370b', 'f6f0e2c6a40d16beb455e57c');
+
+function jp(title,conttext) {
+	client.push().setPlatform('ios', 'android')
+		.setAudience(JPush.alias('1'))
+		.setNotification('吃乎通知',
+			JPush.android(conttext, title, 1, {
+				'key': 'value'
+			}),
+			JPush.ios(conttext, 'sound', 1)
+		)
+		.setMessage('msg content')
+		.send(function(err, res) {
+			if(err) {
+				if(err instanceof JPush.APIConnectionError) {
+					console.log("APIConnectionError:" + err.message);
+
+				} else if(err instanceof JPush.APIRequestError) {
+					console.log(err.message);
+				}
+			} else {
+
+				console.log('Msg_id: ' + res.msg_id);
+			}
+		});
+}
 
 var data = [{
 	_id: '1',
@@ -507,6 +534,7 @@ router.post('/login', function(req, res, next) {
 					"pass": pass
 				}).toArray(function(err, docs) {
 					db.close();
+					jp("吃乎通知","欢迎👏登陆吃乎");
 					res.send(docs);
 				});
 

@@ -6,9 +6,9 @@ var db = require('../../my_modules/db.doc.chihu');
 var JPush = require("jpush-sdk");
 var client = JPush.buildClient('634af50eb57e7339d2dc370b', 'f6f0e2c6a40d16beb455e57c');
 
-function jp(title,conttext) {
+function jp(title, conttext, alias) {
 	client.push().setPlatform('ios', 'android')
-		.setAudience(JPush.alias('1'))
+		.setAudience(JPush.alias(alias))
 		.setNotification('吃乎通知',
 			JPush.android(conttext, title, 1, {
 				'key': 'value'
@@ -72,7 +72,7 @@ function removecoll(name) {
 }
 
 router.get('/dele', function(req, res, next) {
-	removecoll("user");
+	removecoll("thank");
 	res.send('0');
 })
 
@@ -187,6 +187,122 @@ router.post('/article_dec', function(req, res, next) {
 				collection.find({
 					"_id": ObjectID(id),
 					"type": "1"
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+//感谢分享作品或回答
+router.post('/thank', function(req, res, next) {
+	var id = req.body.id;
+	var name = req.body.name;
+	var uid = req.body.uid + '';
+	var type = req.body.type;
+	var userimg = req.body.userimg;
+	var artid = req.body.artid;
+	var title = req.body.title;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+		} else {
+			var col = 'article';
+			var updata = {
+				"mark.think": 1
+			};
+			if(type == '2') {
+				col = 'share';
+				updata = {
+					"mark.like": 1
+				};
+			}
+
+			db.collection(col, {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({
+						"_id": ObjectID(id)
+					}, {
+						"$inc": updata
+					}, {
+						safe: true
+					},
+					function(err, result) {
+						var conttext = "";
+
+						switch(type) {
+							case '0':
+								conttext = name + "  ❤️️感谢了你的回答";
+								break;
+							case '1':
+								conttext = name + "  ❤️感谢了你的作品分享";
+								break;
+							case '2':
+								conttext = name + "  👍点赞了你的分享";
+								break;
+							default:
+								break;
+						}
+
+						db.collection('thank', {
+							safe: true
+						}, function(err, collection) {
+
+							//插入数据
+							var datas = {
+								uid: uid, //感谢的目标用户id
+								id: id, //自己的id
+								userimg: userimg, //自己的头像
+								artid: artid, //文章的id
+								isread: 0, //0为未读，1为已读
+								title: title, //感谢的文档标题
+								type: type, //0为文章，1为分享
+								conttext: conttext, //	标示
+							};
+							//console.log(datas);
+							collection.insert(datas, {
+								safe: true
+							}, function(err, result) {
+								jp("吃乎通知", conttext, uid);
+								res.send(result);
+								db.close();
+							});
+
+						});
+
+					});
+
+			});
+		}
+	})
+
+});
+
+//查看我的赞和感谢
+router.post('/getthank', function(req, res, next) {
+
+	var uid = req.body.uid;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('thank', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uid": uid
 				}).toArray(function(err, docs) {
 					db.close();
 					res.send(docs);
@@ -534,7 +650,7 @@ router.post('/login', function(req, res, next) {
 					"pass": pass
 				}).toArray(function(err, docs) {
 					db.close();
-					jp("吃乎通知","欢迎👏登陆吃乎");
+					jp("吃乎通知", "👏🍰欢迎登陆吃乎", docs[0]["_id"] + '');
 					res.send(docs);
 				});
 
@@ -598,7 +714,7 @@ router.post('/register', function(req, res, next) {
 								collection.find({
 									"name": req.body.name
 								}).toArray(function(err, docs) {
-
+									jp("吃乎通知", "👏🍰注册成功，欢迎登陆吃乎", docs[0]["_id"] + '');
 									res.send(docs);
 									db.close();
 								});

@@ -291,12 +291,14 @@ router.post('/thank', function(req, res, next) {
 
 });
 
-//感谢分享作品或回答
+//关注某人
 router.post('/forkuser', function(req, res, next) {
 	var uid = req.body.uid;
 	var id = req.body.id;
 	var name = req.body.name;
 	var userimg = req.body.userimg;
+	var uname = req.body.uname;
+	var uuserimg = req.body.uuserimg;
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -325,8 +327,10 @@ router.post('/forkuser', function(req, res, next) {
 							var datas = {
 								uid: uid, //关注我的目标用户id
 								id: id, //自己的id
-								name: name, //关注我的目标用户昵称
-								userimg: userimg, //关注我的目标用户头像
+								uname: uname, //关注我的目标用户昵称
+								name: name, //关注我的昵称
+								uuserimg: uuserimg, //关注我的目标用户头像
+								userimg: userimg, //关注我的头像
 								isread: 0, //0为未读，1为已读
 								time: Date.parse(new Date())
 							};
@@ -364,7 +368,38 @@ router.post('/getfork', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({
-					"uid": uid
+					"uid": uid+''
+				}, {
+					limit: 15
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
+
+//查看我的关注列表
+router.post('/myfork', function(req, res, next) {
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('forkme', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"id": id+''
 				}, {
 					limit: 15
 				}).sort({

@@ -285,11 +285,100 @@ router.post('/thank', function(req, res, next) {
 
 });
 
+//感谢分享作品或回答
+router.post('/forkuser', function(req, res, next) {
+	var uid = req.body.uid == "1" ? "1" : ObjectID(req.body.uid);
+	var id = req.body.id;
+	var name = req.body.name;
+	var userimg = req.body.userimg;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({
+						"_id": uid
+					}, {
+						"$inc": {
+							fork: 1
+						}
+					}, {
+						safe: true
+					},
+					function(err, result) {
+						db.collection('forkme', {
+							safe: true
+						}, function(err, collection) {
+							//插入数据
+							var datas = {
+								uid: uid, //关注我的目标用户id
+								id: id, //自己的id
+								name: name, //关注我的目标用户昵称
+								userimg: userimg, //关注我的目标用户头像
+								isread: 0, //0为未读，1为已读
+								time: Date.parse(new Date())
+							};
+							
+							collection.insert(datas, {
+								safe: true
+							}, function(err, result) {
+								var conttext = name + " ➕关注了我";
+								jp("吃乎通知", conttext, uid);
+								res.send(result);
+								db.close();
+							})
+							
+							
+						})
+					})
+
+			});
+
+		}
+	})
+});
+
+//查看我的关注通知
+router.post('/getfork', function(req, res, next) {
+	var uid = req.body.uid;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('forkme', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uid": uid
+				}, {
+					limit: 15
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
+
 //查看我的赞和感谢
 router.post('/getthank', function(req, res, next) {
 
 	var uid = req.body.uid;
-
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -303,6 +392,10 @@ router.post('/getthank', function(req, res, next) {
 
 				collection.find({
 					"uid": uid
+				}, {
+					limit: 15
+				}).sort({
+					_id: -1
 				}).toArray(function(err, docs) {
 					db.close();
 					res.send(docs);

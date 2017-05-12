@@ -82,15 +82,21 @@ router.get('/update', function(req, res, next) {
 			db.close();
 		} else {
 
-			db.collection('article', {
+			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
 
 				collection.update({
-					'uid': 1
+					'name': 'Devon'
 				}, {
 					$set: {
-						'uid': '1'
+						forkqus: 1,
+						forkuser: 0,
+						fork: 2,
+						work: 200,
+						share: 200,
+						integral: 200,
+						report: 0,
 					}
 				}, {
 					multi: true
@@ -287,7 +293,7 @@ router.post('/thank', function(req, res, next) {
 
 //感谢分享作品或回答
 router.post('/forkuser', function(req, res, next) {
-	var uid = req.body.uid == "1" ? "1" : ObjectID(req.body.uid);
+	var uid = req.body.uid;
 	var id = req.body.id;
 	var name = req.body.name;
 	var userimg = req.body.userimg;
@@ -303,7 +309,7 @@ router.post('/forkuser', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.update({
-						"_id": uid
+						"_id": uid == "1" ? uid : ObjectID(uid)
 					}, {
 						"$inc": {
 							fork: 1
@@ -324,7 +330,7 @@ router.post('/forkuser', function(req, res, next) {
 								isread: 0, //0为未读，1为已读
 								time: Date.parse(new Date())
 							};
-							
+
 							collection.insert(datas, {
 								safe: true
 							}, function(err, result) {
@@ -333,8 +339,7 @@ router.post('/forkuser', function(req, res, next) {
 								res.send(result);
 								db.close();
 							})
-							
-							
+
 						})
 					})
 
@@ -753,6 +758,34 @@ router.post('/login', function(req, res, next) {
 	})
 });
 
+//获取用户信息
+router.post('/getuserdata', function(req, res, next) {
+
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+				var _id = id == "1" ? id : ObjectID(id);
+				collection.find({
+					"_id": _id
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
 //注册
 router.post('/register', function(req, res, next) {
 
@@ -784,18 +817,18 @@ router.post('/register', function(req, res, next) {
 							var data = {
 								name: req.body.name,
 								userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
-								forkqus: '0',
-								forkuser: '0',
-								fork: '0',
+								forkqus: 0,
+								forkuser: 0,
+								fork: 0,
 								dec: '吃乎，开启美食之旅...',
-								work: '0',
-								share: '0',
+								work: 0,
+								share: 0,
 								sex: '0',
 								city: '',
 								job: '',
-								integral: '0',
+								integral: 0,
 								title: '吃乎学者',
-								report: '0',
+								report: 0,
 								form: 'register',
 								time: Date.parse(new Date()),
 								pass: req.body.pass

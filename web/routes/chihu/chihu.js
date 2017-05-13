@@ -956,7 +956,7 @@ router.post('/forkquestion', function(req, res, next) {
 			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
-
+		
 				collection.update({
 						"_id": id == "1" ? id : ObjectID(id)
 					}, {
@@ -1076,5 +1076,74 @@ router.post('/checkforkquestion', function(req, res, next) {
 		}
 	})
 })
+
+//删除用户发表
+router.post('/disfork_user', function(req, res, next) {
+	//console.log(req.body.num);
+	var id = req.body.id,
+		uid = req.body.uid;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection("forkme", {
+				safe: true
+			}, function(err, collection) {
+
+				collection.remove({
+					"id": id,
+					"uid": uid
+				}, function(err, result) {
+
+					if(!err) {
+						db.collection('user', {
+							safe: true
+						}, function(err, collection) {
+
+							collection.update({
+									"_id": uid == "1" ? uid : ObjectID(uid)
+								}, {
+									"$inc": {
+										fork: -1
+									}
+								}, {
+									safe: true
+								},
+								function(err, result) {
+
+									collection.update({
+											"_id": id == "1" ? id : ObjectID(id)
+										}, {
+											"$inc": {
+												forkuser: -1
+											}
+										}, {
+											safe: true
+										},
+										function(err, result) {
+											db.close();
+											if(!err){
+												res.send(result);
+											}else{
+												res.send("0");
+											}
+										})
+								})
+						})
+					} else {
+						db.close();
+						res.send("0");
+					}
+				});
+
+			});
+
+		}
+	})
+});
 
 module.exports = router;

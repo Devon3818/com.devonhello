@@ -320,31 +320,44 @@ router.post('/forkuser', function(req, res, next) {
 						safe: true
 					},
 					function(err, result) {
-						db.collection('forkme', {
-							safe: true
-						}, function(err, collection) {
-							//插入数据
-							var datas = {
-								uid: uid, //关注我的目标用户id
-								id: id, //自己的id
-								uname: uname, //关注我的目标用户昵称
-								name: name, //关注我的昵称
-								uuserimg: uuserimg, //关注我的目标用户头像
-								userimg: userimg, //关注我的头像
-								isread: 0, //0为未读，1为已读
-								time: Date.parse(new Date())
-							};
 
-							collection.insert(datas, {
+						collection.update({
+								"_id": id == "1" ? id : ObjectID(id)
+							}, {
+								"$inc": {
+									forkuser: 1
+								}
+							}, {
 								safe: true
-							}, function(err, result) {
-								var conttext = name + " ➕关注了我";
-								jp("吃乎通知", conttext, uid);
-								res.send(result);
-								db.close();
+							},
+							function(err, result) {
+								db.collection('forkme', {
+									safe: true
+								}, function(err, collection) {
+									//插入数据
+									var datas = {
+										uid: uid, //关注我的目标用户id
+										id: id, //自己的id
+										uname: uname, //关注我的目标用户昵称
+										name: name, //关注我的昵称
+										uuserimg: uuserimg, //关注我的目标用户头像
+										userimg: userimg, //关注我的头像
+										isread: 0, //0为未读，1为已读
+										time: Date.parse(new Date())
+									};
+
+									collection.insert(datas, {
+										safe: true
+									}, function(err, result) {
+										var conttext = name + " ➕关注了我";
+										jp("吃乎通知", conttext, uid);
+										res.send(result);
+										db.close();
+									})
+
+								})
 							})
 
-						})
 					})
 
 			});

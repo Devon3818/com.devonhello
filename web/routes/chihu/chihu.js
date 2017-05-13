@@ -72,7 +72,7 @@ function removecoll(name) {
 }
 
 router.get('/dele', function(req, res, next) {
-	removecoll("thank");
+	removecoll("forkquestion");
 	res.send('0');
 })
 
@@ -368,11 +368,40 @@ router.post('/getfork', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({
-					"uid": uid+''
+					"uid": uid + ''
 				}, {
 					limit: 15
 				}).sort({
 					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
+
+//检查是否已经关注了对方
+router.post('/checkfork', function(req, res, next) {
+	var uid = req.body.uid;
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('forkme', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uid": uid + '',
+					"id": id + ''
 				}).toArray(function(err, docs) {
 					db.close();
 					res.send(docs);
@@ -399,7 +428,7 @@ router.post('/myfork', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({
-					"id": id+''
+					"id": id + ''
 				}, {
 					limit: 15
 				}).sort({
@@ -894,5 +923,145 @@ router.post('/register', function(req, res, next) {
 	})
 
 });
+
+//关注问题
+router.post('/forkquestion', function(req, res, next) {
+	var uid = req.body.uid;
+	var id = req.body.id;
+	var name = req.body.name;
+	var userimg = req.body.userimg;
+	var title = req.body.title;
+	var artid = req.body.artid;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('user', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({
+						"_id": id == "1" ? id : ObjectID(id)
+					}, {
+						"$inc": {
+							forkqus: 1
+						}
+					}, {
+						safe: true
+					},
+					function(err, result) {
+						db.collection('answer', {
+							safe: true
+						}, function(err, collection) {
+
+							collection.update({
+									"_id": ObjectID(artid)
+								}, {
+									"$inc": {
+										fork: 1
+									}
+								}, {
+									safe: true
+								},
+								function(err, result) {
+									db.collection('forkquestion', {
+										safe: true
+									}, function(err, collection) {
+										//插入数据
+										var datas = {
+											uid: uid, //关注的问题发布用户id
+											id: id, //自己的id
+											name: name, //关注我的昵称
+											title: title, //问题的标题
+											userimg: userimg, //关注我的头像
+											isread: 0, //0为未读，1为已读
+											artid: artid, //问题id
+											time: Date.parse(new Date())
+										};
+
+										collection.insert(datas, {
+											safe: true
+										}, function(err, result) {
+											var conttext = name + " 关注了提问<" + title + ">❓";
+											jp("吃乎通知", conttext, uid);
+											res.send(result);
+											db.close();
+										})
+
+									})
+								})
+
+						});
+					})
+
+			});
+
+		}
+	})
+});
+
+//查看我的关注的提问列表
+router.post('/getforkquestion', function(req, res, next) {
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('forkquestion', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"id": id + ''
+				}, {
+					limit: 15
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
+
+//检查是否已经关注了对方
+router.post('/checkforkquestion', function(req, res, next) {
+	var artid = req.body.artid;
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('forkquestion', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"artid": artid + '',
+					"id": id + ''
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
 
 module.exports = router;

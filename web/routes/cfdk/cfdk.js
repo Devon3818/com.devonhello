@@ -9,7 +9,10 @@ require('events').EventEmitter.defaultMaxListeners = Infinity;
 //console.log(express().setMaxListeners);
 
 //容云发送信息格式测试
-textMessageObject = { "content": "hello", "extra": "helloExtra" };
+textMessageObject = {
+	"content": "hello",
+	"extra": "helloExtra"
+};
 
 var mongodb = require('mongodb');
 var ObjectID = mongodb.ObjectID;
@@ -42,7 +45,13 @@ function updatacom(coll, id) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.update({ "_id": ObjectID(id) }, { "$inc": { "ucomment": 1 } }, {
+				collection.update({
+					"_id": ObjectID(id)
+				}, {
+					"$inc": {
+						"ucomment": 1
+					}
+				}, {
 					safe: true
 				}, function(err, result) {
 					console.log("评论条数更新成功");
@@ -62,15 +71,24 @@ function updatacuser(coll, id) {
 	switch(coll) {
 		case '1':
 			colls = "uqus";
-			opt = { "uqus": 1, "uhot": 5 };
+			opt = {
+				"uqus": 1,
+				"uhot": 5
+			};
 			break;
 		case '2':
 			colls = "uwork";
-			opt = { "uwork": 1, "uhot": 5 };
+			opt = {
+				"uwork": 1,
+				"uhot": 5
+			};
 			break;
 		case '3':
 			colls = "ushare";
-			opt = { "ushare": 1, "uhot": 5 };
+			opt = {
+				"ushare": 1,
+				"uhot": 5
+			};
 			break;
 		default:
 			break;
@@ -86,7 +104,11 @@ function updatacuser(coll, id) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.update({ "_id": ObjectID(id) }, { "$inc": opt }, {
+				collection.update({
+					"_id": ObjectID(id)
+				}, {
+					"$inc": opt
+				}, {
 					safe: true
 				}, function(err, result) {
 					console.log("用户更新成功");
@@ -101,7 +123,7 @@ function updatacuser(coll, id) {
 
 //更新用户资料
 router.post('/alertuser', function(req, res, next) {
-	
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -112,7 +134,15 @@ router.post('/alertuser', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.update({ "_id": ObjectID(req.body.id) }, {$set:{ "uname": req.body.name, "usex": req.body.sex, "uheader" :req.body.header }}, {
+				collection.update({
+					"_id": ObjectID(req.body.id)
+				}, {
+					$set: {
+						"uname": req.body.name,
+						"usex": req.body.sex,
+						"uheader": req.body.header
+					}
+				}, {
 					safe: true
 				}, function(err, result) {
 					console.log("用户资料更新成功");
@@ -122,7 +152,7 @@ router.post('/alertuser', function(req, res, next) {
 			});
 		}
 	});
-	
+
 });
 
 //举报
@@ -138,7 +168,13 @@ router.post('/jubao', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.update({ "_id": ObjectID(req.body.id) }, { "$inc": { uno: 1 } }, {
+				collection.update({
+					"_id": ObjectID(req.body.id)
+				}, {
+					"$inc": {
+						uno: 1
+					}
+				}, {
 					safe: true
 				}, function(err, result) {
 					console.log("举报成功");
@@ -165,11 +201,17 @@ router.post('/jubaopl', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.update({ "_id": ObjectID(req.body.id) }, { "$inc": { uno: 1 } }, {
+				collection.update({
+					"_id": ObjectID(req.body.id)
+				}, {
+					"$inc": {
+						uno: 1
+					}
+				}, {
 					safe: true
 				}, function(err, result) {
 					console.log("举报评论成功");
-					
+
 					res.send(result);
 					db.close();
 				});
@@ -209,8 +251,6 @@ function removecoll(name) {
 	})
 }
 
-
-
 //推送评论
 function sendcommentJP(name, maudience, _id, artid, type) {
 	//console.log(name);
@@ -219,14 +259,20 @@ function sendcommentJP(name, maudience, _id, artid, type) {
 
 	client.push().setPlatform('ios', 'android')
 		.setAudience(JPush.alias(maudience))
-		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, { '_id': _id, 'artid': artid, 'type': type }), JPush.android(name, null, 1, { '_id': _id, 'artid': artid, 'type': type }))
+		.setNotification('Hi, JPush', JPush.ios(name, '', 1, null, {
+			'_id': _id,
+			'artid': artid,
+			'type': type
+		}), JPush.android(name, null, 1, {
+			'_id': _id,
+			'artid': artid,
+			'type': type
+		}))
 		.setMessage('msg content')
 		.send(function(err, res) {
 			if(err) {
 				if(err instanceof JPush.APIConnectionError) {
-					console.log("APIConnectionError:"+err.message);
-					//Response Timeout means your request to the server may have already received, please check whether or not to push
-					//console.log(err.isResponseTimeout);
+					console.log("APIConnectionError:" + err.message);
 				} else if(err instanceof JPush.APIRequestError) {
 					console.log(err.message);
 				}
@@ -236,8 +282,6 @@ function sendcommentJP(name, maudience, _id, artid, type) {
 			}
 		});
 }
-
-
 
 //图片上传
 var formidable = require('formidable');
@@ -302,7 +346,11 @@ router.post('/indexuserlist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 8 }).sort({ uhot: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 8
+				}).sort({
+					uhot: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -334,7 +382,11 @@ router.post('/indexarticlelist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 5 }).sort({ usee: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 5
+				}).sort({
+					usee: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -367,7 +419,12 @@ router.post('/usersort', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 10, skip: len }).sort({ uhot: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					uhot: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -401,7 +458,17 @@ router.post('/search', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ utitle: { $regex: name, $options: "$i" } }, { limit: 30, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					utitle: {
+						$regex: name,
+						$options: "$i"
+					}
+				}, {
+					limit: 30,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -434,7 +501,12 @@ router.post('/indexworklist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 10, skip: len }).sort({ uhot: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					uhot: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -800,7 +872,15 @@ router.post('/my_comment_list', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "utid": id, "nid": "0" }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"utid": id,
+					"nid": "0"
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(id);
 					//console.log(docs);
@@ -836,7 +916,17 @@ router.post('/comment_chart_list', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id, "utid": id, "nid": { $ne: 0 }, "type": type }, { limit: 10, skip: len }).toArray(function(err, docs) {
+				collection.find({
+					"uid": id,
+					"utid": id,
+					"nid": {
+						$ne: 0
+					},
+					"type": type
+				}, {
+					limit: 10,
+					skip: len
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(id);
 					//console.log(docs);
@@ -871,7 +961,12 @@ router.post('/see_comment_chart', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uartid": id, "type": type }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"uartid": id,
+					"type": type
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(id);
 					//console.log(docs);
@@ -991,7 +1086,9 @@ router.post('/article', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+				collection.find({
+					"_id": ObjectID(id)
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1024,7 +1121,9 @@ router.post('/getuserdata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+				collection.find({
+					"_id": ObjectID(id)
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1056,7 +1155,12 @@ router.post('/hotarticlelist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 6, skip: len }).sort({ usee: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 6,
+					skip: len
+				}).sort({
+					usee: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1089,7 +1193,12 @@ router.post('/articlelist', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 6, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 6,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1122,7 +1231,12 @@ router.post('/workdata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs) {
@@ -1155,7 +1269,12 @@ router.post('/quedata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs) {
@@ -1188,7 +1307,9 @@ router.post('/seequedata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+				collection.find({
+					"_id": ObjectID(id)
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1221,7 +1342,9 @@ router.post('/seeworkdata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+				collection.find({
+					"_id": ObjectID(id)
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1255,7 +1378,14 @@ router.post('/getmywork', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"uid": id
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1292,7 +1422,20 @@ router.post('/getmywork_jpush', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "type": type, "uartid": artid, $or: [{ "uid": uid }, { "fid": uid }] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"type": type,
+					"uartid": artid,
+					$or: [{
+						"uid": uid
+					}, {
+						"fid": uid
+					}]
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1329,7 +1472,20 @@ router.post('/getmychart_jpush', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "type": type, "uartid": artid, $or: [{ "uid": uid }, { "fid": uid }] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"type": type,
+					"uartid": artid,
+					$or: [{
+						"uid": uid
+					}, {
+						"fid": uid
+					}]
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1366,7 +1522,20 @@ router.post('/getmyque_jpush', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "type": type, "uartid": artid, $or: [{ "uid": uid }, { "fid": uid }] }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"type": type,
+					"uartid": artid,
+					$or: [{
+						"uid": uid
+					}, {
+						"fid": uid
+					}]
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1400,7 +1569,14 @@ router.post('/getmychart', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"uid": id
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1434,7 +1610,14 @@ router.post('/getmyquestion', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id }, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({
+					"uid": id
+				}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1467,7 +1650,9 @@ router.post('/seechartdata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "_id": ObjectID(id) }).toArray(function(err, docs) {
+				collection.find({
+					"_id": ObjectID(id)
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1500,7 +1685,12 @@ router.post('/chartdata', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, { limit: 10, skip: len }).sort({ _id: -1 }).toArray(function(err, docs) {
+				collection.find({}, {
+					limit: 10,
+					skip: len
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs) {
@@ -1535,17 +1725,19 @@ router.post('/dele', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.remove({ "_id": ObjectID(id),"uid": uid }, function(err, result) {
+				collection.remove({
+					"_id": ObjectID(id),
+					"uid": uid
+				}, function(err, result) {
 					db.close();
-					if(!err){
+					if(!err) {
 						//console.log(result)
 						res.send(result);
-					}else{
+					} else {
 						//console.log(err)
 						res.send("0");
 					}
 				});
-
 
 			});
 
@@ -1607,7 +1799,10 @@ router.post('/tocollect', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uartid": req.body.uartid, "uid": req.body.uid }).toArray(function(err, docs) {
+				collection.find({
+					"uartid": req.body.uartid,
+					"uid": req.body.uid
+				}).toArray(function(err, docs) {
 
 					if(docs.length) {
 						db.close();
@@ -1657,7 +1852,9 @@ router.post('/mytocollect', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id }).toArray(function(err, docs) {
+				collection.find({
+					"uid": id
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1674,8 +1871,6 @@ router.post('/mytocollect', function(req, res, next) {
 	})
 });
 
-
-
 //关注
 router.post('/fork', function(req, res, next) {
 
@@ -1690,7 +1885,10 @@ router.post('/fork', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": req.body.uid, "fid": req.body.fid }).toArray(function(err, docs) {
+				collection.find({
+					"uid": req.body.uid,
+					"fid": req.body.fid
+				}).toArray(function(err, docs) {
 
 					if(docs.length) {
 						db.close();
@@ -1740,7 +1938,9 @@ router.post('/myfork', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({ "uid": id }).toArray(function(err, docs) {
+				collection.find({
+					"uid": id
+				}).toArray(function(err, docs) {
 					db.close();
 					//console.log(docs);
 					if(docs.length) {
@@ -1759,7 +1959,7 @@ router.post('/myfork', function(req, res, next) {
 
 //App版本
 router.get('/appversion', function(req, res, next) {
-	
+
 	res.send("0.0.6");
 });
 

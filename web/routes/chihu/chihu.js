@@ -31,25 +31,44 @@ function jp(title, conttext, alias) {
 		});
 }
 
+//var data = [{
+//	_id: 'kongdewen666',
+//	name: "Devon",
+//	userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
+//	forkqus: '1',
+//	forkuser: '0',
+//	fork: '0',
+//	dec: '吃乎，开启美食之旅...每天分享新事物，新食物...',
+//	work: '200',
+//	share: '200',
+//	sex: '0',
+//	city: '中国',
+//	job: 'IT',
+//	integral: '200',
+//	title: '吃乎达人',
+//	report: '0',
+//	form: 'register',
+//	time: '1493802411111',
+//	pass: '123456'
+//}];
+
 var data = [{
-	_id: '1',
-	name: "Devon",
+	isshow: "0",
+	uid: "5919860d65fe31bd2abc4834",
+	answerid: "590b2e8cd65af8b34dd02f31",
+	name: "JOMM",
 	userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
-	forkqus: '1',
-	forkuser: '0',
-	fork: '0',
-	dec: '吃乎，开启美食之旅...每天分享新事物，新食物...',
-	work: '200',
-	share: '200',
-	sex: '0',
-	city: '中国',
-	job: 'IT',
-	integral: '200',
-	title: '吃乎达人',
-	report: '0',
-	form: 'register',
-	time: '1493802411111',
-	pass: '123456'
+	title: "蒸米饭到底该加什么水",
+	dec: "我邻居就是东北人，一直吃米饭，他们说如果用电饭煲蒸米饭，最好用凉水，这样米容易熟，用热水可能会有点生，需要多加水。",
+	text: "我邻居就是东北人，一直吃米饭，他们说如果用电饭煲蒸米饭，最好用凉水，这样米容易熟，用热水可能会有点生，需要多加水。但如果从营养角度来说，还是用热水比较好，这样蒸的时间短，营养不容易流失。",
+	time: 1493802420000,
+	mark: {
+		think: 0,
+		collect: 0,
+		cont: 0,
+		report: 0
+	},
+	type: "0"
 }];
 
 function removecoll(name) {
@@ -72,7 +91,7 @@ function removecoll(name) {
 }
 
 router.get('/dele', function(req, res, next) {
-	removecoll("forkquestion");
+	removecoll("user");
 	res.send('0');
 })
 
@@ -82,26 +101,23 @@ router.get('/update', function(req, res, next) {
 			db.close();
 		} else {
 
-			db.collection('user', {
+			db.collection('answer', {
 				safe: true
 			}, function(err, collection) {
 
 				collection.update({
-					'name': 'Devon'
+					'_id': '590b2e8cd65af8b34dd02f31'
 				}, {
 					$set: {
-						forkqus: 1,
-						forkuser: 0,
-						fork: 2,
-						work: 200,
-						share: 200,
-						integral: 200,
-						report: 0,
+						answer: 2
 					}
 				}, {
 					multi: true
 				}, function(err, result) {
-					res.send(result);
+					if(!err) {
+						res.send(result);
+					}
+
 					db.close();
 				});
 
@@ -120,7 +136,7 @@ router.get('/home_data', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('user', {
+			db.collection('article', {
 				safe: true
 			}, function(err, collection) {
 
@@ -161,6 +177,37 @@ router.post('/home', function(req, res, next) {
 
 				collection.find({}, {
 					limit: 15
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+//提问列表
+router.post('/queslist', function(req, res, next) {
+
+	var len = req.body.len;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('answer', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, {
+					limit: 20
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {
@@ -311,7 +358,7 @@ router.post('/forkuser', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.update({
-						"_id": uid == "1" ? uid : ObjectID(uid)
+						"_id": uid == "kongdewen666" ? uid : ObjectID(uid)
 					}, {
 						"$inc": {
 							fork: 1
@@ -322,7 +369,7 @@ router.post('/forkuser', function(req, res, next) {
 					function(err, result) {
 
 						collection.update({
-								"_id": id == "1" ? id : ObjectID(id)
+								"_id": id == "kongdewen666" ? id : ObjectID(id)
 							}, {
 								"$inc": {
 									forkuser: 1
@@ -849,7 +896,7 @@ router.post('/getuserdata', function(req, res, next) {
 			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
-				var _id = id == "1" ? id : ObjectID(id);
+				var _id = id == "kongdewen666" ? id : ObjectID(id);
 				collection.find({
 					"_id": _id
 				}).toArray(function(err, docs) {
@@ -956,9 +1003,9 @@ router.post('/forkquestion', function(req, res, next) {
 			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
-		
+
 				collection.update({
-						"_id": id == "1" ? id : ObjectID(id)
+						"_id": id == "kongdewen666" ? id : ObjectID(id)
 					}, {
 						"$inc": {
 							forkqus: 1
@@ -1105,7 +1152,7 @@ router.post('/disfork_user', function(req, res, next) {
 						}, function(err, collection) {
 
 							collection.update({
-									"_id": uid == "1" ? uid : ObjectID(uid)
+									"_id": uid == "kongdewen666" ? uid : ObjectID(uid)
 								}, {
 									"$inc": {
 										fork: -1
@@ -1116,7 +1163,7 @@ router.post('/disfork_user', function(req, res, next) {
 								function(err, result) {
 
 									collection.update({
-											"_id": id == "1" ? id : ObjectID(id)
+											"_id": id == "kongdewen666" ? id : ObjectID(id)
 										}, {
 											"$inc": {
 												forkuser: -1
@@ -1126,9 +1173,9 @@ router.post('/disfork_user', function(req, res, next) {
 										},
 										function(err, result) {
 											db.close();
-											if(!err){
+											if(!err) {
 												res.send(result);
-											}else{
+											} else {
 												res.send("0");
 											}
 										})

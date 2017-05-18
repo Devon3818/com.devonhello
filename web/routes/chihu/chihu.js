@@ -52,24 +52,29 @@ function jp(title, conttext, alias) {
 //	pass: '123456'
 //}];
 
+//var data = [{
+//	isshow: "0",
+//	uid: "5919860d65fe31bd2abc4834",
+//	answerid: "590b2e8cd65af8b34dd02f31",
+//	name: "JOMM",
+//	userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
+//	title: "蒸米饭到底该加什么水",
+//	dec: "我邻居就是东北人，一直吃米饭，他们说如果用电饭煲蒸米饭，最好用凉水，这样米容易熟，用热水可能会有点生，需要多加水。",
+//	text: "我邻居就是东北人，一直吃米饭，他们说如果用电饭煲蒸米饭，最好用凉水，这样米容易熟，用热水可能会有点生，需要多加水。但如果从营养角度来说，还是用热水比较好，这样蒸的时间短，营养不容易流失。",
+//	time: 1493802420000,
+//	mark: {
+//		think: 0,
+//		collect: 0,
+//		cont: 0,
+//		report: 0
+//	},
+//	type: "0"
+//}];
+
 var data = [{
-	isshow: "0",
-	uid: "5919860d65fe31bd2abc4834",
-	answerid: "590b2e8cd65af8b34dd02f31",
-	name: "JOMM",
-	userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
-	title: "蒸米饭到底该加什么水",
-	dec: "我邻居就是东北人，一直吃米饭，他们说如果用电饭煲蒸米饭，最好用凉水，这样米容易熟，用热水可能会有点生，需要多加水。",
-	text: "我邻居就是东北人，一直吃米饭，他们说如果用电饭煲蒸米饭，最好用凉水，这样米容易熟，用热水可能会有点生，需要多加水。但如果从营养角度来说，还是用热水比较好，这样蒸的时间短，营养不容易流失。",
-	time: 1493802420000,
-	mark: {
-		think: 0,
-		collect: 0,
-		cont: 0,
-		report: 0
-	},
-	type: "0"
-}];
+	v: "1.0.1",
+	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
+}]
 
 function removecoll(name) {
 	db.open(function(error, client) {
@@ -91,7 +96,7 @@ function removecoll(name) {
 }
 
 router.get('/dele', function(req, res, next) {
-	removecoll("user");
+	removecoll("appversion");
 	res.send('0');
 })
 
@@ -136,7 +141,7 @@ router.get('/home_data', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('article', {
+			db.collection('appversion', {
 				safe: true
 			}, function(err, collection) {
 
@@ -1185,6 +1190,31 @@ router.post('/disfork_user', function(req, res, next) {
 						db.close();
 						res.send("0");
 					}
+				});
+
+			});
+
+		}
+	})
+});
+
+//App版本
+router.post('/appversion', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('appversion', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
 				});
 
 			});

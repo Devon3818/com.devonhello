@@ -189,111 +189,8 @@ function jp(title, conttext, alias) {
 //	"type": "0"
 //}]
 
-//var data = {
-//	"_id": "5909f06761ee44f946ade439",
-//	"isshow": "5909ef0063a02f025fcf862e",
-//	"work": [{
-//		"width": 600,
-//		"src": "http://s1.cdn.xiachufang.com/13aa38b68c8e11e6a9a10242ac110002_199w_172h.jpg@2o_50sh_1pr_1l_300w_90q_1wh",
-//		"text": "将肉洗净，切分成粗条",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/13d32c448c8e11e6b87c0242ac110003_202w_175h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "将肉条放入容器中，放入叉烧酱",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/142600048c8e11e6a9a10242ac110002_201w_174h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "放入葱白",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/144d71ac8c8e11e6a9a10242ac110002_201w_175h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "蒜用刀背拍扁，姜切片",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s1.cdn.xiachufang.com/146b9a2e8c8e11e6b87c0242ac110003_200w_175h.jpg@2o_50sh_1pr_1l_300w_90q_1wh",
-//		"text": "将姜和蒜放入，放入白酒",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/14e142928c8e11e6a9a10242ac110002_198w_173h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "放入1大勺蜂蜜",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/150f1e068c8e11e6b87c0242ac110003_201w_173h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "用手抓拌，让肉均匀地沾到酱汁，盖上盖子放置于凉处静置2小时左右",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/155da1168c8e11e6a9a10242ac110002_200w_175h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "捡出葱白、姜、蒜不要，继续腌制18个小时",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/1593bea48c8e11e6a9a10242ac110002_201w_176h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "预热烤箱至200度，在烤盘中铺上锡纸，整理锡纸形成方盘状",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/15f846588c8e11e6b87c0242ac110003_201w_175h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "将腌好的肉放到烤网上，两面都刷上适量蜂蜜",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s1.cdn.xiachufang.com/16995b568c8e11e6a9a10242ac110002_200w_175h.jpg@2o_50sh_1pr_1l_300w_90q_1wh",
-//		"text": "将烤盘放于烤箱底层，烤网放于中层，烤20分钟。取出后将肉两面都刷一遍剩余的酱汁，再刷一遍蜂蜜",
-//		"height": 400
-//	}, {
-//		"width": 600,
-//		"src": "http://s2.cdn.xiachufang.com/16f2a0f88c8e11e6b87c0242ac110003_201w_177h.jpg?imageView2/2/w/300/interlace/1/q/90",
-//		"text": "继续烤20分钟左右至肉熟透，取出后再刷一遍蜂蜜，晾至微凉即可切片食用",
-//		"height": 400
-//	}],
-//	"uid": "kongdewen666",
-//	"title": "叉烧肉",
-//	"food": [{
-//		"name": "梅花肉",
-//		"len": "600克"
-//	}, {
-//		"name": "叉烧酱",
-//		"len": "3大勺"
-//	}, {
-//		"name": "葱白",
-//		"len": "15克"
-//	}, {
-//		"name": "姜",
-//		"len": "1克"
-//	}, {
-//		"name": "蒜",
-//		"len": "3克"
-//	}, {
-//		"name": "白酒",
-//		"len": "1大勺"
-//	}, {
-//		"name": "蜂蜜",
-//		"len": "适量"
-//	}],
-//	"userimg": "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
-//	"workbanner": "http://s2.cdn.xiachufang.com/3c201be8873511e6a9a10242ac110002_455w_677h.jpg?imageView2/2/w/660/interlace/1/q/90",
-//	"tip": "1、在腌肉时用手给肉做做按摩，可以使其吸收酱汁更快。\r2、葱、姜、蒜味道太重，不要放置时间过长，捡出后只用酱汁腌即可。总体腌制时间约20个小时，比较入味和上色，也可适当缩短或延长时间。\r3、烤盘上放锡纸置于烤箱内底层，用来接烤肉时掉下的油，这种油黑黑的不好清洗，不要直接用烤盘接。",
-//	"mark": {
-//		"report": 0,
-//		"collect": 324,
-//		"cont": 56,
-//		"think": 127
-//	},
-//	"time": 1493802420000,
-//	"text": "粤菜的叉烧肉，近年来亦成为身为东北人的我家里年三十晚上的年菜，每每有客来到，总会吃得惊喜。它的甜蜜滋味，给浓浓的年味又增加了甜味，无论是佐饭还是配酒，堪称百搭滴年菜。",
-//	"type": "1",
-//	"name": "Devon"
-//}
-
 var data = [{
-	v: "1.0.1",
+	v: "Beta_1.0.2",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -370,12 +267,12 @@ router.get('/print', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('share', {
+			db.collection('article', {
 				safe: true
 			}, function(err, collection) {
 
 				collection.find({}, {
-					limit: 1
+					limit: 3
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {
@@ -1546,6 +1443,63 @@ router.post('/send_share', function(req, res, next) {
 						report: 0
 					},
 					text: req.body.text,
+					name: req.body.name
+				}
+
+				collection.insert(data, {
+					safe: true
+				}, function(err, result) {
+					db.close();
+					res.send(result);
+				});
+
+			});
+		}
+	})
+});
+
+//发表作品
+router.post('/send_article', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				//插入数据
+				var data = {
+					isshow: "1",
+					work: JSON.parse(req.body.work),
+					//					[{
+					//						"width": 600,
+					//						"src": "http://s1.cdn.xiachufang.com/13aa38b68c8e11e6a9a10242ac110002_199w_172h.jpg@2o_50sh_1pr_1l_300w_90q_1wh",
+					//						"text": "将肉洗净，切分成粗条",
+					//						"height": 400
+					//					}],
+					uid: req.body.uid,
+					title: req.body.title,
+					food: JSON.parse(req.body.food),
+					//					[{
+					//						"name": "梅花肉",
+					//						"len": "600克"
+					//					}],
+					userimg: req.body.userimg,
+					workbanner: req.body.workbanner,
+					tip: req.body.tip,
+					mark: {
+						report: 0,
+						collect: 0,
+						cont: 0,
+						think: 0
+					},
+					time: Date.parse(new Date()),
+					text: req.body.text,
+					type: req.body.type,
 					name: req.body.name
 				}
 

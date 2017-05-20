@@ -190,7 +190,7 @@ function jp(title, conttext, alias) {
 //}]
 
 var data = [{
-	v: "Beta_1.0.4",
+	v: "Beta_1.0.5",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -267,12 +267,12 @@ router.get('/print', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('article', {
+			db.collection('share', {
 				safe: true
 			}, function(err, collection) {
 
 				collection.find({}, {
-					limit: 3
+					limit: 6
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {
@@ -599,6 +599,64 @@ router.post('/forkuser', function(req, res, next) {
 		}
 	})
 });
+
+//获取我关注的人的分享
+router.post('/getmyforkshare', function(req, res, next) {
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('forkme', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"id": id + ''
+				}, {
+					uid: 1,
+					_id: 0
+				}).toArray(function(err, docs) {
+					var len = docs.length;
+					if(len) {
+
+						var users = [];
+						for(var i = 0; i < len; i++) {
+							users.push(docs[i]['uid']);
+						}
+
+						db.collection('share', {
+							safe: true
+						}, function(err, collection) {
+
+							collection.find({
+								"uid": {
+									"$in": users
+								}
+							}, {
+								limit: 15
+							}).sort({
+								_id: -1
+							}).toArray(function(err, docs) {
+								db.close();
+								res.send(docs);
+							});
+
+						});
+					} else {
+						db.close();
+						res.send('0');
+					}
+				});
+
+			});
+
+		}
+	})
+})
 
 //查看我的关注通知
 router.post('/getfork', function(req, res, next) {

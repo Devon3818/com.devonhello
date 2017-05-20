@@ -190,7 +190,7 @@ function jp(title, conttext, alias) {
 //}]
 
 var data = [{
-	v: "Beta_1.0.3",
+	v: "Beta_1.0.4",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -484,8 +484,35 @@ router.post('/thank', function(req, res, next) {
 								safe: true
 							}, function(err, result) {
 								jp("吃乎通知", conttext, uid);
-								res.send(result);
-								db.close();
+								if(type == '2') {
+									db.collection('coll_share', {
+										safe: true
+									}, function(err, collection) {
+										//插入数据
+										var datas = {
+											artid: artid,
+											isshow: req.body.isshow,
+											uid: uid,
+											id: id,
+											img: JSON.parse(req.body.img),
+											userimg: req.body.targetuserimg,
+											time: req.body.time,
+											text: title,
+											name: req.body.targetname
+										};
+										collection.insert(datas, {
+											safe: true
+										}, function(err, result) {
+											res.send(result);
+											db.close();
+										})
+
+									})
+								} else {
+									res.send(result);
+									db.close();
+								}
+
 							});
 
 						});
@@ -1039,6 +1066,38 @@ router.post('/my_collect_question', function(req, res, next) {
 	})
 });
 
+//我点赞的
+router.post('/my_collect_share', function(req, res, next) {
+
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('coll_share', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"id": id
+				}, {
+					limit: 15
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
 //检查是否已经收藏了文章
 router.post('/checkcollart', function(req, res, next) {
 	var artid = req.body.artid;
@@ -1059,6 +1118,37 @@ router.post('/checkcollart', function(req, res, next) {
 					"artid": artid,
 					"uid": uid + '',
 					"type": type,
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
+
+//检查是否已经点赞了
+router.post('/checkcollshare', function(req, res, next) {
+	var artid = req.body.artid;
+	var uid = req.body.uid;
+	var id = req.body.id;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('coll_share', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"artid": artid,
+					"uid": uid + '',
+					"id": id,
 				}).toArray(function(err, docs) {
 					db.close();
 					res.send(docs);
@@ -1717,6 +1807,54 @@ router.post('/discoll_article', function(req, res, next) {
 								'type': req.body.type
 							}, function(err, result) {
 
+								res.send(result);
+								db.close();
+							})
+
+						})
+
+					})
+
+			});
+
+		}
+	})
+});
+
+//取消点赞
+router.post('/discoll_share', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('share', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({
+						"_id": ObjectID(req.body.artid)
+					}, {
+						"$inc": {
+							"mark.like": -1
+						}
+					}, {
+						safe: true
+					},
+					function(err, result) {
+						db.collection('coll_share', {
+							safe: true
+						}, function(err, collection) {
+							//插入数据
+
+							collection.remove({
+								'artid': req.body.artid,
+								'uid': req.body.uid,
+								'id': req.body.id
+							}, function(err, result) {
 								res.send(result);
 								db.close();
 							})

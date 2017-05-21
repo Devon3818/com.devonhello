@@ -190,7 +190,7 @@ function jp(title, conttext, alias) {
 //}]
 
 var data = [{
-	v: "Beta_1.0.6",
+	v: "Beta_1.0.7",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -218,31 +218,28 @@ router.get('/dele', function(req, res, next) {
 	res.send('0');
 })
 
-router.get('/update', function(req, res, next) {
+router.get('/update/:name/:nickname', function(req, res, next) {
+	
+	var name = req.params.name;
+	var nickname = req.params.nickname;
+	
 	db.open(function(error, client) {
 		if(error) {
 			db.close();
 		} else {
 
-			db.collection('share', {
+			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
 
 				collection.update({
-					'time': 1495175420000
+					'name': name
 				}, {
 					$set: {
-						img: [{
-							"width": 400,
-							"height": 400,
-							"src": "http://7xp2ia.com1.z0.glb.clouddn.com/0.6631792476141922.jpg"
-						}, {
-							"width": 448,
-							"height": 448,
-							"src": "http://7xp2ia.com1.z0.glb.clouddn.com/0.32343853384337673.jpg"
-						}]
+						nickname: nickname
 					}
 				}, {
+					upsert:true,
 					multi: true
 				}, function(err, result) {
 					if(!err) {
@@ -267,12 +264,12 @@ router.get('/print', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('share', {
+			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
 
 				collection.find({}, {
-					limit: 6
+					limit: 60
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {
@@ -1484,7 +1481,8 @@ router.post('/register', function(req, res, next) {
 								report: 0,
 								form: 'register',
 								time: Date.parse(new Date()),
-								pass: req.body.pass
+								pass: req.body.pass,
+								nickname: req.body.nickname
 							}
 
 							collection.insert(data, {

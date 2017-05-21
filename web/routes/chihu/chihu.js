@@ -190,7 +190,7 @@ function jp(title, conttext, alias) {
 //}]
 
 var data = [{
-	v: "Beta_1.0.5",
+	v: "Beta_1.0.6",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -336,9 +336,137 @@ router.post('/home', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({}, {
+					limit: 25
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+//个人最新动态
+router.post('/new_list', function(req, res, next) {
+	
+	var uid = req.body.uid;
+	
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"uid": uid
+				}, {
 					limit: 15
 				}).sort({
 					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+//热门作品
+router.post('/hot_work', function(req, res, next) {
+
+	var type = req.body.type;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					type: type
+				}, {
+					limit: 25
+				}).sort({
+					"mark.collect": -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+//热门作品
+router.post('/hot_answer', function(req, res, next) {
+
+	var type = req.body.type;
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					type: type
+				}, {
+					limit: 25
+				}).sort({
+					"mark.collect": -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+//热门分享
+router.post('/hot_share', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('share', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({}, {
+					limit: 25
+				}).sort({
+					"mark.like": -1
 				}).toArray(function(err, docs) {
 					db.close();
 					res.send(docs);
@@ -825,7 +953,7 @@ router.post('/share', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({}, {
-					limit: 15
+					limit: 25
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {

@@ -219,10 +219,10 @@ router.get('/dele', function(req, res, next) {
 })
 
 router.get('/update/:name/:nickname', function(req, res, next) {
-	
+
 	var name = req.params.name;
 	var nickname = req.params.nickname;
-	
+
 	db.open(function(error, client) {
 		if(error) {
 			db.close();
@@ -239,7 +239,7 @@ router.get('/update/:name/:nickname', function(req, res, next) {
 						nickname: nickname
 					}
 				}, {
-					upsert:true,
+					upsert: true,
 					multi: true
 				}, function(err, result) {
 					if(!err) {
@@ -349,9 +349,9 @@ router.post('/home', function(req, res, next) {
 
 //个人最新动态
 router.post('/new_list', function(req, res, next) {
-	
+
 	var uid = req.body.uid;
-	
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -1745,6 +1745,59 @@ router.post('/appversion', function(req, res, next) {
 	})
 });
 
+//获取评论
+router.post('/get_comment', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					artid: req.body.artid
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
+router.post('/see_comment', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					_id: ObjectID(req.body.id)
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+});
+
 //发表提问
 router.post('/send_question', function(req, res, next) {
 	//打开数据表
@@ -1778,6 +1831,105 @@ router.post('/send_question', function(req, res, next) {
 					db.close();
 					res.send(result);
 				});
+
+			});
+		}
+	})
+});
+
+//发表评论
+router.post('/send_comment', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('share', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({
+						"_id": ObjectID(req.body.artid)
+					}, {
+						"$inc": {
+							"mark.cont": 1
+						}
+					}, {
+						safe: true
+					},
+					function(err, result) {
+						db.collection('comment', {
+							safe: true
+						}, function(err, collection) {
+
+							//插入数据
+							var data = {
+								report: 0,
+								uid: req.body.uid,
+								artid: req.body.artid,
+								type: req.body.type,
+								commarr: [],
+								text: req.body.text,
+								name: req.body.name,
+								userimg: req.body.userimg,
+								time: Date.parse(new Date()),
+							}
+
+							collection.insert(data, {
+								safe: true
+							}, function(err, result) {
+								db.close();
+								res.send(result);
+							});
+
+						});
+					})
+
+			})
+		}
+	});
+});
+
+//回复评论
+router.post('/reply_comment', function(req, res, next) {
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('comment', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.update({
+						"_id": ObjectID(req.body._id)
+					}, {
+						"$push": {
+							"commarr": {
+								'name': req.body.name,
+								'targetname': req.body.targetname,
+								'targetid': req.body.targetid,
+								'text': req.body.text,
+								'uid': req.body.uid,
+								'artid': req.body.artid,
+								'type': req.body.type,
+								'report': 0,
+								'userimg': req.body.userimg,
+								'time': Date.parse(new Date()),
+								'reply': req.body.reply,
+							}
+						}
+					}, {
+						safe: true
+					},
+					function(err, result) {
+						db.close();
+						res.send(result);
+					})
 
 			});
 		}

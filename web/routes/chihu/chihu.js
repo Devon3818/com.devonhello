@@ -190,7 +190,7 @@ function jp(title, conttext, alias) {
 //}]
 
 var data = [{
-	v: "Beta_1.0.7",
+	v: "Beta_1.0.9",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -608,7 +608,7 @@ router.post('/thank', function(req, res, next) {
 							collection.insert(datas, {
 								safe: true
 							}, function(err, result) {
-								jp("吃乎通知", conttext, uid);
+
 								if(type == '2') {
 									db.collection('coll_share', {
 										safe: true
@@ -637,6 +637,7 @@ router.post('/thank', function(req, res, next) {
 									res.send(result);
 									db.close();
 								}
+								jp("吃乎通知", conttext, uid);
 
 							});
 
@@ -709,9 +710,10 @@ router.post('/forkuser', function(req, res, next) {
 										safe: true
 									}, function(err, result) {
 										var conttext = name + " ➕关注了我";
-										jp("吃乎通知", conttext, uid);
+
 										res.send(result);
 										db.close();
+										jp("吃乎通知", conttext, uid);
 									})
 
 								})
@@ -1398,8 +1400,9 @@ router.post('/login', function(req, res, next) {
 					"pass": pass
 				}).toArray(function(err, docs) {
 					db.close();
-					jp("吃乎通知", "👏🍰欢迎登陆吃乎", docs[0]["_id"] + '');
+
 					res.send(docs);
+					jp("吃乎通知", "👏🍰欢迎登陆吃乎", docs[0]["_id"] + '');
 				});
 
 			});
@@ -1491,9 +1494,10 @@ router.post('/register', function(req, res, next) {
 								collection.find({
 									"name": req.body.name
 								}).toArray(function(err, docs) {
-									jp("吃乎通知", "👏🍰注册成功，欢迎登陆吃乎", docs[0]["_id"] + '');
+
 									res.send(docs);
 									db.close();
+									jp("吃乎通知", "👏🍰注册成功，欢迎登陆吃乎", docs[0]["_id"] + '');
 								});
 
 							});
@@ -1574,9 +1578,10 @@ router.post('/forkquestion', function(req, res, next) {
 											safe: true
 										}, function(err, result) {
 											var conttext = name + " 关注了提问<" + title + ">❓";
-											jp("吃乎通知", conttext, uid);
+
 											res.send(result);
 											db.close();
+											jp("吃乎通知", conttext, uid);
 										})
 
 									})
@@ -1760,7 +1765,8 @@ router.post('/get_comment', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({
-					artid: req.body.artid
+					artid: req.body.artid,
+					type: req.body.type
 				}).toArray(function(err, docs) {
 					db.close();
 					res.send(docs);
@@ -1839,6 +1845,24 @@ router.post('/send_question', function(req, res, next) {
 
 //发表评论
 router.post('/send_comment', function(req, res, next) {
+
+	var type = req.body.type;
+	var coll = '';
+
+	switch(type) {
+		case '1':
+			coll = 'article'
+			break;
+		case '2':
+			coll = 'article'
+			break;
+		case '3':
+			coll = 'share';
+			break;
+		default:
+			break;
+	}
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -1846,7 +1870,7 @@ router.post('/send_comment', function(req, res, next) {
 			res.render('error');
 		} else {
 
-			db.collection('share', {
+			db.collection(coll, {
 				safe: true
 			}, function(err, collection) {
 
@@ -1880,8 +1904,37 @@ router.post('/send_comment', function(req, res, next) {
 							collection.insert(data, {
 								safe: true
 							}, function(err, result) {
-								db.close();
-								res.send(result);
+								//db.close();
+								//res.send(result);
+
+								db.collection('myinform', {
+									safe: true
+								}, function(err, collection) {
+									//插入数据
+									var datas = {
+										targetid: req.body.targetid, //关注的问题发布用户id
+										uid: req.body.uid, //自己的id
+										name: req.body.name, //关注我的昵称
+										title: req.body.name + '评论了你', //问题的标题
+										userimg: req.body.userimg, //关注我的头像
+										isread: 0, //0为未读，1为已读
+										artid: req.body.artid, //文章id，
+										type: req.body.type,
+										time: Date.parse(new Date())
+									};
+
+									collection.insert(datas, {
+										safe: true
+									}, function(err, result) {
+										var conttext = req.body.name + " 评论了你";
+
+										res.send(result);
+										db.close();
+										jp("吃乎通知", conttext, targetid);
+									})
+
+								})
+
 							});
 
 						});

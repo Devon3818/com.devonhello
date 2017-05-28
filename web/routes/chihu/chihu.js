@@ -190,7 +190,7 @@ function jp(title, conttext, alias) {
 //}]
 
 var data = [{
-	v: "Beta_1.0.9",
+	v: "Beta_1.1.0",
 	url: "https://github.com/kongdewen1994/chihu/raw/master/android-debug.apk"
 }]
 
@@ -309,6 +309,72 @@ router.get('/home_data', function(req, res, next) {
 						res.send(result);
 					});
 				}
+
+			});
+
+		}
+	})
+
+	//res.send("home");
+});
+
+//回答问题
+router.post('/send_answer', function(req, res, next) {
+
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('article', {
+				safe: true
+			}, function(err, collection) {
+
+				//插入数据
+				var data = {
+					"isshow": "0",
+					"uid": req.body.uid,
+					"answerid": req.body.answerid,
+					"name": req.body.name,
+					"userimg": req.body.userimg,
+					"title": req.body.title,
+					"dec": req.body.text.substring(0, 70) + '...',
+					"text": req.body.text,
+					"time": Date.parse(new Date()),
+					"mark": {
+						"think": 0,
+						"collect": 0,
+						"cont": 0,
+						"report": 0
+					},
+					"type": "0"
+				};
+				collection.insert(data, {
+					safe: true
+				}, function(err, result) {
+
+					db.collection('answer', {
+						safe: true
+					}, function(err, collection) {
+
+						collection.update({
+								"_id": ObjectID(req.body.answerid)
+							}, {
+								"$inc": {
+									answer: 1
+								}
+							}, {
+								safe: true
+							},
+							function(err, result) {
+								res.send(result);
+								db.close();
+							})
+					})
+
+				});
 
 			});
 
@@ -1944,6 +2010,37 @@ router.post('/send_comment', function(req, res, next) {
 		}
 	});
 });
+
+//查看我的关注通知
+router.post('/getinform', function(req, res, next) {
+	var uid = req.body.uid;
+	//打开数据表
+	db.open(function(error, client) {
+		if(error) {
+			db.close();
+			res.render('error');
+		} else {
+
+			db.collection('myinform', {
+				safe: true
+			}, function(err, collection) {
+
+				collection.find({
+					"targetid": uid + ''
+				}, {
+					limit: 15
+				}).sort({
+					_id: -1
+				}).toArray(function(err, docs) {
+					db.close();
+					res.send(docs);
+				});
+
+			});
+
+		}
+	})
+})
 
 //回复评论
 router.post('/reply_comment', function(req, res, next) {

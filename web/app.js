@@ -13,6 +13,7 @@ var ADMIN = require('./routes/Admin/index');
 var ESHOP = require('./routes/Eshop/index');
 var cfdk = require('./routes/cfdk/cfdk');
 var chihu = require('./routes/chihu/chihu');
+var buka = require('./routes/buka/buka');
 var cfdkAdmin = require('./routes/cfdkAdmin/admin');
 
 require('events').EventEmitter.defaultMaxListeners = Infinity;
@@ -96,6 +97,7 @@ app.use('/admin',ADMIN);
 app.use('/eshop',ESHOP);
 app.use('/cfdk', cfdk);   //  厨房大咖
 app.use('/chihu', chihu);   //  吃乎
+app.use('/buka', buka);   //  buka
 app.use('/cfdkAdmin', cfdkAdmin);   //  厨房大咖后台
 
 // catch 404 and forward to error handler

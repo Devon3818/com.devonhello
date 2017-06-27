@@ -13,6 +13,7 @@ var ADMIN = require('./routes/Admin/index');
 var ESHOP = require('./routes/Eshop/index');
 var cfdk = require('./routes/cfdk/cfdk');
 var chihu = require('./routes/chihu/chihu');
+var chihuangular = require('./routes/chihuangular/chihuangular');
 var buka = require('./routes/buka/buka');
 var cfdkAdmin = require('./routes/cfdkAdmin/admin');
 
@@ -20,6 +21,20 @@ require('events').EventEmitter.defaultMaxListeners = Infinity;
 
 var app = express();
 app.setMaxListeners(100);
+
+app.use(express.static(path.join(__dirname, 'public')));
+//设置跨域访问
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1')
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
+
+
+
 
 var admin = express(); // the sub app
 var api = express();
@@ -89,7 +104,8 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 app.use('/', routes);
 app.use('/users', users);
@@ -97,6 +113,7 @@ app.use('/admin',ADMIN);
 app.use('/eshop',ESHOP);
 app.use('/cfdk', cfdk);   //  厨房大咖
 app.use('/chihu', chihu);   //  吃乎
+app.use('/chihuangular', chihuangular);   //  吃乎
 app.use('/buka', buka);   //  buka
 app.use('/cfdkAdmin', cfdkAdmin);   //  厨房大咖后台
 
@@ -105,18 +122,6 @@ app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
-});
-
-
-
-
-app.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
-    next();
 });
 
 

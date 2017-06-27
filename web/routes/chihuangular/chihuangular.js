@@ -331,7 +331,10 @@ router.post('/send_answer', function(req, res, next) {
 			db.collection('article', {
 				safe: true
 			}, function(err, collection) {
-
+					
+				var otext = 	req.body.text;
+				var dec = otext;
+				
 				//插入数据
 				var data = {
 					"isshow": "0",
@@ -340,7 +343,7 @@ router.post('/send_answer', function(req, res, next) {
 					"name": req.body.name,
 					"userimg": req.body.userimg,
 					"title": req.body.title,
-					"dec": req.body.text.substring(0, 70) + '...',
+					"dec": dec.replace(/<\s?img[^>]*>/gi,'[图片]').replace(/<[^>]+>/g,"").substring(0, 130) + '...',
 					"text": req.body.text,
 					"time": Date.parse(new Date()),
 					"mark": {
@@ -387,6 +390,9 @@ router.post('/send_answer', function(req, res, next) {
 //home
 router.post('/home', function(req, res, next) {
 	
+	var len = req.body.page,
+		type = req.body.type;
+	
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -398,8 +404,11 @@ router.post('/home', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({}, {
-					limit: 30
+				collection.find({
+					type: type
+				}, {
+					limit: 6,
+					skip: len * 6 - 6
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {
@@ -544,7 +553,7 @@ router.post('/hot_share', function(req, res, next) {
 //提问列表
 router.post('/queslist', function(req, res, next) {
 
-	var len = req.body.len;
+	var len = req.body.page;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -558,7 +567,8 @@ router.post('/queslist', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({}, {
-					limit: 20
+					limit: 20,
+					skip: len * 20 - 20
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {
@@ -1005,7 +1015,9 @@ router.post('/checkthank', function(req, res, next) {
 
 //获取发现分享
 router.post('/share', function(req, res, next) {
-
+	
+	var len = req.body.page;
+	
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -1018,7 +1030,8 @@ router.post('/share', function(req, res, next) {
 			}, function(err, collection) {
 
 				collection.find({}, {
-					limit: 25
+					limit: 10,
+					skip: len * 10 - 10
 				}).sort({
 					_id: -1
 				}).toArray(function(err, docs) {

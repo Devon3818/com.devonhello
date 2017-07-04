@@ -13,6 +13,7 @@ var ADMIN = require('./routes/Admin/index');
 var ESHOP = require('./routes/Eshop/index');
 var cfdk = require('./routes/cfdk/cfdk');
 var chihu = require('./routes/chihu/chihu');
+var chihu2 = require('./routes/chihu2/chihu');
 var chihuangular = require('./routes/chihuangular/chihuangular');
 var buka = require('./routes/buka/buka');
 var cfdkAdmin = require('./routes/cfdkAdmin/admin');
@@ -113,6 +114,7 @@ app.use('/admin',ADMIN);
 app.use('/eshop',ESHOP);
 app.use('/cfdk', cfdk);   //  厨房大咖
 app.use('/chihu', chihu);   //  吃乎
+app.use('/chihu2', chihu2);   //  吃乎2
 app.use('/chihuangular', chihuangular);   //  吃乎
 app.use('/buka', buka);   //  buka
 app.use('/cfdkAdmin', cfdkAdmin);   //  厨房大咖后台

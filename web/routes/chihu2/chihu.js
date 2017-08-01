@@ -271,10 +271,10 @@ router.post('/send_answer', function(req, res, next) {
 			db.collection('article', {
 				safe: true
 			}, function(err, collection) {
-				
-				var otext = 	req.body.text;
+
+				var otext = req.body.text;
 				var dec = otext;
-				
+
 				//插入数据
 				var data = {
 					"isshow": "0",
@@ -283,7 +283,7 @@ router.post('/send_answer', function(req, res, next) {
 					"name": req.body.name,
 					"userimg": req.body.userimg,
 					"title": req.body.title,
-					"dec": dec.replace(/<\s?img[^>]*>/gi,'[图片]').replace(/<[^>]+>/g,"").substring(0, 130) + '...',
+					"dec": dec.replace(/<\s?img[^>]*>/gi, '[图片]').replace(/<[^>]+>/g, "").substring(0, 130) + '...',
 					"text": req.body.text,
 					"time": Date.parse(new Date()),
 					"mark": {
@@ -462,9 +462,9 @@ router.post('/hot_answer', function(req, res, next) {
 
 //热门分享
 router.post('/hot_share', function(req, res, next) {
-	
+
 	var ilen = req.body.len;
-	
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -539,13 +539,18 @@ router.post('/article_dec', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({
-					"_id": ObjectID(id),
-					"type": "1"
-				}).toArray(function(err, docs) {
+				if(!err) {
+					collection.find({
+						"_id": ObjectID(id),
+						"type": "1"
+					}).toArray(function(err, docs) {
+						db.close();
+						res.send(docs);
+					});
+				} else {
 					db.close();
-					res.send(docs);
-				});
+					res.send('0');
+				}
 
 			});
 
@@ -1005,9 +1010,9 @@ router.post('/checkthank', function(req, res, next) {
 
 //获取发现分享
 router.post('/share', function(req, res, next) {
-	
+
 	var ilen = req.body.len;
-	
+
 	//打开数据表
 	db.open(function(error, client) {
 		if(error) {
@@ -1051,12 +1056,17 @@ router.post('/share_dec', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({
-					"_id": ObjectID(id)
-				}).toArray(function(err, docs) {
+				if(!err) {
+					collection.find({
+						"_id": ObjectID(id)
+					}).toArray(function(err, docs) {
+						db.close();
+						res.send(docs);
+					});
+				} else {
 					db.close();
-					res.send(docs);
-				});
+					res.send('0');
+				}
 
 			});
 
@@ -1080,13 +1090,18 @@ router.post('/answer_dec', function(req, res, next) {
 				safe: true
 			}, function(err, collection) {
 
-				collection.find({
-					"_id": ObjectID(id),
-					"type": "0"
-				}).toArray(function(err, docs) {
+				if(!err) {
+					collection.find({
+						"_id": ObjectID(id),
+						"type": "0"
+					}).toArray(function(err, docs) {
+						db.close();
+						res.send(docs);
+					});
+				} else {
 					db.close();
-					res.send(docs);
-				});
+					res.send('0');
+				}
 
 			});
 
@@ -1494,13 +1509,19 @@ router.post('/getuserdata', function(req, res, next) {
 			db.collection('user', {
 				safe: true
 			}, function(err, collection) {
-				var _id = id == "kongdewen666" ? id : ObjectID(id);
-				collection.find({
-					"_id": _id
-				}).toArray(function(err, docs) {
+				//var _id = id == "kongdewen666" ? id : ObjectID(id);
+
+				if(!err) {
+					collection.find({
+						"_id": id == "kongdewen666" ? id : ObjectID(id)
+					}).toArray(function(err, docs) {
+						db.close();
+						res.send(docs);
+					});
+				} else {
 					db.close();
-					res.send(docs);
-				});
+					res.send('0');
+				}
 
 			});
 
@@ -1526,7 +1547,7 @@ router.post('/register', function(req, res, next) {
 					"name": req.body.name
 				}).toArray(function(err, docs) {
 
-					if(docs.length) {
+					if(docs.length != '0') {
 						db.close();
 						res.send("0");
 					} else {
@@ -1538,7 +1559,7 @@ router.post('/register', function(req, res, next) {
 							//插入数据
 							var data = {
 								name: req.body.name,
-								userimg: "https://avatars2.githubusercontent.com/u/11835988?v=3&u=2a181779eb2164666606366a1df31f9c17cf7a20&s=100",
+								userimg: "https://avatars2.githubusercontent.com/u/30495768?v=4&s=100",
 								forkqus: 0,
 								forkuser: 0,
 								fork: 0,
@@ -1563,9 +1584,9 @@ router.post('/register', function(req, res, next) {
 								collection.find({
 									"name": req.body.name
 								}).toArray(function(err, docs) {
-
-									res.send(docs);
 									db.close();
+									res.send(docs);
+									
 									jp("吃乎通知", "👏🍰注册成功，欢迎登陆吃乎", docs[0]["_id"] + '');
 								});
 

@@ -20,6 +20,13 @@ var cfdkAdmin = require('./routes/cfdkAdmin/admin');
 
 require('events').EventEmitter.defaultMaxListeners = Infinity;
 
+var fs=require('fs');  
+var https=require('https');  
+var options = {
+	key: fs.readFileSync('214234795320703.key'),
+	cert: fs.readFileSync('214234795320703.pem'),
+}
+
 var app = express();
 app.setMaxListeners(100);
 
@@ -151,6 +158,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
+https.createServer(options,app).listen(443);
 
 
 //console.log(app.setMaxListeners);

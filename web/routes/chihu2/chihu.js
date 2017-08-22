@@ -431,6 +431,7 @@ router.post('/hot_work', function(req, res, next) {
 router.post('/hot_answer', function(req, res, next) {
 
 	var type = req.body.type;
+//	var ilen = req.body.len;
 
 	//打开数据表
 	db.open(function(error, client) {
@@ -447,6 +448,7 @@ router.post('/hot_answer', function(req, res, next) {
 					type: type
 				}, {
 					limit: 25
+//					skip: ilen * 1
 				}).sort({
 					"mark.collect": -1
 				}).toArray(function(err, docs) {
